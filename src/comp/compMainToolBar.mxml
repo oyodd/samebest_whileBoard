@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" x="25" y="11" width="99%" height="99%" horizontalAlign="center" creationComplete="init()"
+		 verticalGap="10">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			
+			private function init():void
+			{
+				//imgBtn.addEventListener(MouseEvent.CLICK,onImageTileShowClick);
+				/**現在只留下一個按鈕 切換頁時更改CSS 並且發EVENT*/
+				/*
+				PptBtnCSS
+				imgBtnCSS
+				penBtnCSS
+				AnimationBtnCSS
+				VedioBtnCSS
+				*/
+			}
+			
+			/**點下後 由按鈕發EVENT**/
+			private function onMainButtonClick():void
+			{
+				var a:Event = new Event("onMainButtonClick",true,true);
+				mainButton.dispatchEvent( a );
+			}
+			
+			/**change page to change the icon**/
+			public function changePageToChangeIcon(pageName:String):void
+			{
+				if( pageName == "ppt" )
+				{
+					mainButton.styleName = "PptBtnCSS";
+				}
+				//
+				if( pageName == "flash" )
+				{
+					mainButton.styleName = "AnimationBtnCSS";
+				}
+				
+				if( pageName == "image" )
+				{
+					mainButton.styleName = "imgBtnCSS";
+				}
+				//
+				if( pageName == "video" )
+				{
+					mainButton.styleName = "VedioBtnCSS";
+				}
+				//
+				if( pageName == "ispring" )
+				{
+					mainButton.styleName = "IspringBtnCSS";
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	
+	
+	<fx:Style source="boardCSS.css" />
+	
+	<mx:Button width="56" height="42" label="" visible="true" id="mainButton" styleName="PptBtnCSS" click="onMainButtonClick()"/>
+	<mx:Button width="59" height="1" label="" visible="true"  styleName="BarBtnCSS" id="barBtn1"/>
+	
+	
+</mx:VBox>

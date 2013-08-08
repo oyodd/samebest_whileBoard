@@ -1,0 +1,1676 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   xmlns:comp="comp.*"
+					   xmlns:com="com.*"
+					   applicationComplete="init()"
+					   >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			
+			/**2012/11/6 use git**/
+			import com.*;
+			
+			import comp.*;
+			
+			import mx.containers.Canvas;
+			import mx.controls.TabBar;
+			import mx.core.Application;
+			import mx.core.Container;
+			import mx.core.FlexGlobals;
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			
+			//標籤頁面的集合
+			public var arTabCollection:Array = new Array();
+			//
+			public var loaderCenter:loaderControlCenter ;
+			
+			//ppt's page
+			private var pptContent:compPptBoard = new compPptBoard();
+			//imageBoard's page
+			private var imageContent:compImageBoard ;
+			//animationBoard's page
+			private var animationContent:compFlashBoard ;
+			//videoBoard's page
+			private var videoContent:compVideoBoard ;
+			//
+			private var ispringContent:compIspringBoard ;
+			/***鉛筆 顏色 大小 參數設定***/
+			private var currentPenColor:uint = 0x000000; 
+			private var currentPnnSize:int = 5;
+			private var currentPenTransparent:Boolean = false; 
+			/**************************/
+			/**鉛筆切換時的大小紀錄**/
+			private var prePenSize:int = 5;
+			
+			/**頁籤按鈕***/
+			private var ppt_btn:Button = new Button;
+			private var board_btn_1:Button = new Button;
+			private var board_btn_2:Button = new Button;
+			private var board_btn_3:Button = new Button;
+			private var flash_btn:Button = new Button;
+			/*****/
+			
+			private function init():void
+			{
+				//this.addEventListener(Event.ENTER_FRAME, onEnterFrame);
+				this.stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE;
+				//
+				FlexGlobals.topLevelApplication.statusBar.height = 0;
+				//guarantee the stage's wedth = 1360 and height = 768
+				closeBtn_.x = this.width - 31;
+				//
+				imageTileShow.y = 40;
+				imageTileShow.x = leftToolBar.width ;
+				imageTileShow.visible = false;
+				imageTileShow.cacheAsBitmap = true;
+				//
+				libraryTileShow .y = 40;
+				libraryTileShow.x = leftToolBar.width ;
+				libraryTileShow.visible = false;
+				libraryTileShow.cacheAsBitmap = true;
+				//
+				flashTileShow .y = 40;
+				flashTileShow.x = leftToolBar.width ;
+				flashTileShow.visible = false;
+				//
+				videoTileShow .y = 40;
+				videoTileShow.x = leftToolBar.width ;
+				videoTileShow.visible = false;
+				
+				
+				//把tab通通都收集到ar 以方便之後提用
+				for( var i:int = 0; i < 7 ; i++ )
+				{
+					this.arTabCollection.push( this.myTabs.getChildByName( "TabNavContent_" + i ) );
+				}
+				
+				//
+				GameData.arTabCollection = this.arTabCollection;
+				
+				// mx.core.FlexGlobals.topLevelApplication
+				
+				/**event Collection**/
+				//左上角的按鈕點下 要判斷哪個頁次 進行更改
+				this.addEventListener("onMainButtonClick",onMainButtonClick);
+				//
+				this.addEventListener("evPneSizeChenge",evPneSizeChenge);
+				//
+				this.addEventListener("changePneColor",changePneColor);
+				//
+				this.addEventListener("evPencelClick",evPencelClick);
+				//
+				this.addEventListener("evEraserClick",evEraserClick);
+				//
+				this.addEventListener("onClearBaord",onClearBaord);
+				//
+				this.addEventListener("onLibraryClick",onLibraryClick);
+				//
+				this.addEventListener("changePptPneColor",changePptPneColor);
+				/***元件庫操作控制按鈕事件***/
+				this.addEventListener("onControlZoom",setZoomOpen);
+				this.addEventListener("onControlRotate",setRotateOpen);
+				this.addEventListener("onColtrolCopy",setCopyOpen);
+				this.addEventListener("onColtrolClearAll",deleteCurrentBoardAllLibrary);
+				this.addEventListener("onControlOpenCloseBtn",onShowAllCloseBtn);
+				this.addEventListener("onRemoveAllControlBarActive",onRemoveAllControlBarActive);
+				/**************************/
+				/***匯入檔案完成事件***/
+				this.addEventListener("assetsImportComp",assetsImportComp);
+				/*********************/
+				
+				/**這三個事件為flash 載入後要修改右下方控制項的變動***/
+				this.addEventListener("as2Control",as2Control);
+				this.addEventListener("as3Control",as3Control);
+				//this.addEventListener("pptControl",pptControl);
+				/*****/
+				
+				/**當video被點下後 就會改變畫板的使用**/
+				this.addEventListener("videoShow",videoShow);
+				
+				/*********************/
+				//加入頁面
+				inputTabNavContent();
+				//加入頁籤css
+				setSelectPageButtonCSS();
+				//loader參照
+				loaderCenter = new loaderControlCenter();
+				GameData.loaderReference = loaderCenter;
+				//因為image要共要 所以在main下載就好
+				/**下載image檔案資料夾**/
+				loaderImageAssets();
+				/**下載library資料夾**/
+				loaderLibraryAssets();
+				/**下載 flash 資料夾**/
+				loaderFlashAssets();
+				/**下載 video 資料夾**/
+				loaderVideoAssets();
+			}
+			
+			/** as2 移除(位移)所有控制項**/
+			private function as2Control(ev:Event):void
+			{
+				( GameData.getTabNavComp( "TabNavContent_4" ) as compFlashBoard ).setFlashPptControlCompOut();
+				( GameData.getTabNavComp( "TabNavContent_4" ) as compFlashBoard ).setFlashAs3ControlCompOut();
+				/**如果是as2的檔案 就要把畫板先關掉 待需要的時候再打開使用   **/
+				GameData.isPenUse = true;
+				evPencelClick(new Event("e"));
+			}
+			
+			/**只留下as3的**/
+			private function as3Control(ev:Event):void
+			{
+				/*
+				( GameData.getTabNavComp( "TabNavContent_4" ) as compFlashBoard ).setFlashAs3ControlCompIn();
+				( GameData.getTabNavComp( "TabNavContent_4" ) as compFlashBoard ).setFlashPptControlCompOut();
+				*/
+				( GameData.getTabNavComp( "TabNavContent_4" ) as compFlashBoard ).setFlashAs3ControlCompOut();
+				( GameData.getTabNavComp( "TabNavContent_4" ) as compFlashBoard ).setFlashPptControlCompOut();
+				GameData.isPenUse = true;
+				evPencelClick(new Event("e"));
+			}
+			
+			/**只留下ppt的**/
+			private function pptControl(ev:Event):void
+			{
+				( GameData.getTabNavComp( "TabNavContent_4" ) as compFlashBoard ).setFlashAs3ControlCompOut();
+				( GameData.getTabNavComp( "TabNavContent_4" ) as compFlashBoard ).setFlashPptControlCompIn();
+				GameData.isPenUse = false;
+				evPencelClick(new Event("e"));
+			}
+			
+			/** as2 移除(位移)所有控制項**/
+			private function videoShow(ev:Event):void
+			{
+				GameData.isPenUse = true;
+				evPencelClick(new Event("e"));
+			}
+			
+			/**匯入檔案完畢 更新資訊***/
+			private function assetsImportComp(ev:Event):void
+			{
+				/**先把loader給null掉 再產生一個**/
+				loaderCenter = null;
+				loaderCenter = new loaderControlCenter();
+				//GameData.loaderReference = null;
+				System.gc();
+				GameData.loaderReference = loaderCenter;
+				
+				this.libraryTileShow.removeAllChildren();
+				this.imageTileShow.removeAllChildren();
+				this.flashTileShow.removeAllChildren();
+				this.videoTileShow.removeAllChildren();
+				
+				/**跑所有畫面的初始化 包含loader**/
+				for( var j:int = 0 ; j< GameData.allPageComp.length ; j++ )
+				{
+					if( GameData.allPageComp[j] is compPptBoard )
+					{
+						( GameData.allPageComp[j] as compPptBoard ).loadAssets();
+					}
+					
+					if( GameData.allPageComp[j] is compIspringBoard )
+					{
+						( GameData.allPageComp[j] as compIspringBoard ).loadAssets();
+					}
+				}
+				
+				/**下載image檔案資料夾**/
+				loaderImageAssets();
+				/**下載library資料夾**/
+				loaderLibraryAssets();
+				/**下載 flash 資料夾**/
+				loaderFlashAssets();
+				/**下載 video 資料夾**/
+				loaderVideoAssets();
+			}
+			
+			private function setSelectPageButtonCSS():void
+			{
+				for(var i:int = 0;i<=myTabs.numChildren - 1;i++)
+				{
+					if( i == 0 )
+					{
+						ppt_btn = myTabs.getTabAt(0);
+						ppt_btn.styleName = "myPptTabCSS_0";
+					}
+					
+					if( i== 1 )
+					{
+						board_btn_1 = myTabs.getTabAt(1);
+						board_btn_1.styleName = "myBoardTabCSS_0";
+					}
+					
+					if( i== 2 )
+					{
+						board_btn_2 = myTabs.getTabAt(2);
+						board_btn_2.styleName = "myBoardTabCSS_0";
+					}
+					
+					if( i== 3 )
+					{
+						board_btn_3 = myTabs.getTabAt(3);
+						board_btn_3.styleName = "myBoardTabCSS_0";
+					}
+					
+					if( i== 4 )
+					{
+						flash_btn = myTabs.getTabAt(4);
+						flash_btn.styleName = "myFlashTabCSS_0";
+					}
+					
+					if( i== 5 )
+					{
+						flash_btn = myTabs.getTabAt(5);
+						flash_btn.styleName = "myVideoTabCSS_0";
+					}
+					
+					if( i== 6 )
+					{
+						flash_btn = myTabs.getTabAt(6);
+						flash_btn.styleName = "myIspringTabCSS_0";
+					}
+				}
+			}
+			
+			/**修改目前的筆觸大小**/
+			private function evPneSizeChenge(ev:Event):void
+			{
+				var arPneSize:Array = ( ev.target.name as String ).split("penSize");   // ev.target.name->penSize4
+				currentPnnSize = arPneSize[1] ; 
+				/**設定當前頁面的筆觸大小**/
+				/**將所有的板子都換過**/
+				for( var i:int = 0 ; i< GameData.allBoardCollection.length ; i++)
+				{
+					( GameData.allBoardCollection[i] as boardMainClass ).setPenSize( currentPnnSize );
+				}			
+			}
+			
+			/**改變目前顏色**/
+			private function changePneColor(ev:Event):void
+			{
+				//trace( "changeColor" );
+				//trace( ev.target.name ) //ev.target.name->leftRed-15350307-false
+				var arPneColorAndTransparent:Array = ( ev.target.name as String ).split("-");
+				currentPenColor = arPneColorAndTransparent[1];
+				if( arPneColorAndTransparent[2] == "true" )
+				{
+					currentPenTransparent = true;
+				}
+				else
+				{
+					currentPenTransparent = false;
+				}
+				//currentPenTransparent = (arPneColorAndTransparent[2] as Boolean );
+				/**將所有的板子都換過**/
+				for( var i:int = 0 ; i< GameData.allBoardCollection.length ; i++)
+				{
+					( GameData.allBoardCollection[i] as boardMainClass ).setPenColor( currentPenColor );
+					( GameData.allBoardCollection[i] as boardMainClass ).setTransparent( currentPenTransparent );
+				}
+			}
+			
+			/**替ppt更換板子上鉛筆的顏色 由於板子是點下去才產生 所以顏色會是預設值 沒有一起被更換**/
+			private function changePptPneColor(ev:Event):void
+			{
+				/**將所有的板子都換過**/
+				for( var i:int = 0 ; i< GameData.allBoardCollection.length ; i++)
+				{
+					( GameData.allBoardCollection[i] as boardMainClass ).setPenColor( currentPenColor );
+					( GameData.allBoardCollection[i] as boardMainClass ).setTransparent( currentPenTransparent );
+				}
+			}
+			
+			/**點下筆**/
+			private function evPencelClick(ev:Event):void
+			{
+				trace( "evPencelClick" );
+				/**特別為了flash 可以調整筆的狀態    只有在as2的flash被播放才需要開啟畫板控制模式 其他不需要**/
+				if( GameData.currentPageName == "TabNavContent_4" )
+				{
+					if( GameData.isPenUse == false)
+					{ 
+						if( GameData.currentBaord != null )
+						{
+							currentPnnSize = prePenSize;
+							leftToolBar.drawTool.changePenSize(currentPnnSize);
+							GameData.isEraserUse = false;
+							leftToolBar.drawTool.onEraserCssSet();
+							GameData.isPenUse = true;
+							leftToolBar.drawTool.onPenCssSet();
+							( GameData.currentBaord as boardMainClass ).activeLayer("penLayer");
+							setAllBoardPenState();
+						}
+					}
+					else
+					{
+						if( GameData.currentBaord != null )
+						{
+							/**取消筆時把筆記清除**/
+							( ( GameData.getCurrentTabNavComp() as compFlashBoard ).getBaordInstance() ).clearDrawBoard();
+							
+							GameData.isPenUse = false;
+							leftToolBar.drawTool.onPenCssSet();
+							( GameData.currentBaord as boardMainClass ).activeLayer("backGroundLayer");
+						}
+					}
+				}
+				/**video也要一個筆的狀態**/
+				else if( GameData.currentPageName == "TabNavContent_5" )
+				{
+					if( GameData.isPenUse == false)
+					{
+						if( GameData.currentBaord != null )
+						{
+							currentPnnSize = prePenSize;
+							leftToolBar.drawTool.changePenSize(currentPnnSize);
+							GameData.isEraserUse = false;
+							leftToolBar.drawTool.onEraserCssSet();
+							GameData.isPenUse = true;
+							leftToolBar.drawTool.onPenCssSet();
+							( GameData.currentBaord as boardMainClass ).activeLayer("penLayer");
+							setAllBoardPenState();
+						}
+					}
+					else
+					{
+						if( GameData.currentBaord != null )
+						{
+							/**取消筆時把筆記清除**/
+							( ( GameData.getCurrentTabNavComp() as compVideoBoard ).getBaordInstance() ).clearDrawBoard();
+							
+							GameData.isPenUse = false;
+							leftToolBar.drawTool.onPenCssSet();
+							( GameData.currentBaord as boardMainClass ).activeLayer("backGroundLayer");
+						}
+					}
+				}
+				else
+				{
+					if( GameData.isPenUse == false )
+					{
+						currentPnnSize = prePenSize;
+						leftToolBar.drawTool.changePenSize(currentPnnSize);
+						GameData.isPenUse = true;
+						leftToolBar.drawTool.onPenCssSet();
+						GameData.isEraserUse = false;
+						leftToolBar.drawTool.onEraserCssSet();
+						setAllBoardPenState();
+						
+						( GameData.currentBaord as boardMainClass ).activeLayer("penLayer");
+					}
+				}
+			}
+			
+			
+			/**設定所有板子的筆模式**/
+			private function setAllBoardPenState():void
+			{
+				/**將所有的板子都換過**/
+				for( var i:int = 0 ; i< GameData.allBoardCollection.length ; i++)
+				{
+					( GameData.allBoardCollection[i] as boardMainClass ).setPenState(true);
+					( GameData.allBoardCollection[i] as boardMainClass ).setEraserState(false);
+					//也要換筆的SIZE
+					( GameData.allBoardCollection[i] as boardMainClass ).setPenSize( currentPnnSize );
+				}
+			}
+			
+			/**點下Eraser**/
+			private function evEraserClick(ev:Event):void
+			{
+				trace( "evEraserClick" );
+				if( GameData.isEraserUse == false )
+				{
+					//紀錄切換橡皮擦前 筆的大小
+					prePenSize = currentPnnSize;
+					//改變大小橡皮擦大小
+					currentPnnSize = 10;
+					//change css
+					leftToolBar.drawTool.changePenSize(currentPnnSize);
+					//
+					GameData.isPenUse = false;
+					leftToolBar.drawTool.onPenCssSet();
+					GameData.isEraserUse = true;
+					leftToolBar.drawTool.onEraserCssSet();
+					/**將所有的板子都換過**/
+					for( var i:int = 0 ; i< GameData.allBoardCollection.length ; i++)
+					{
+						( GameData.allBoardCollection[i] as boardMainClass ).setPenState(false);
+						( GameData.allBoardCollection[i] as boardMainClass ).setEraserState(true);
+						////也要換筆的SIZE
+						( GameData.allBoardCollection[i] as boardMainClass ).setPenSize( currentPnnSize );
+					}
+				}
+			}
+			
+			/**點下清除畫面**/
+			private function onClearBaord(ev:Event):void
+			{
+				if( GameData.currentBaord != null )
+				{
+					(GameData.currentBaord as boardMainClass).clearDrawBoard();
+				}
+			}
+			
+			/**點下元件庫**/
+			private function onLibraryClick(ev:Event):void
+			{
+				/**flash and video 不需要用 所以打不開**/
+				if( GameData.currentPageName == "TabNavContent_4" || GameData.currentPageName == "TabNavContent_5" || GameData.currentPageName == "TabNavContent_6" )
+				{
+					return;
+				}
+				
+				/**開啟元件庫**/
+				/**把當前頁面的layer切換至最上層  如果是ppt 那就整份都切   在頁籤切換時就把元件庫關閉並且回到畫板模式***/
+				if( this.libraryTileShow.visible )
+				{
+					/**關閉元件庫控制選項comp**/
+					leftToolBar.drawTool.removeLibraryControlComp();
+					/**清空所有外框**/
+					clearAllLibraryFrame();
+					/**消除所有的元件控制項動作**/
+					onRemoveAllControlBarActive(new Event("a"));
+					
+					libraryCloseInCurrentPage();
+					///**走訪每個頁面 如果 imageBoard的tile是有開的 就把layer**/
+				}
+				else
+				{
+					/**開啟元件庫控制選項comp**/
+					leftToolBar.drawTool.addLibraryControlComp();
+					
+					libraryOpenInCurrentPage();
+				}
+			}
+			
+			/**開啟當前頁面的library**/
+			private function libraryOpenInCurrentPage():void
+			{
+				libraryTileShow.visible = true;
+				leftToolBar.drawTool.setLibraryCss(true);
+				/**先判斷是在哪種頁面  如果是 ppt 那就把PPT的每個activeLayer設定成library 其他的舊另外設定**/
+				for( var k:int = 0 ; k< GameData.allBoardCollection.length ; k++)
+				{
+					/**如果在ppt**/
+					if( GameData.currentPageName == "TabNavContent_0" )
+					{
+						if( ( GameData.allBoardCollection[k] as boardMainClass ).parentType == "ppt" )
+						{
+							//(( GameData.allBoardCollection[k] as boardMainClass ) as MovieClip).url = "9";
+							/**改變階層*/
+							( GameData.allBoardCollection[k] as boardMainClass ).activeLayer("libraryLayer");
+							/**改變當前狀態**/
+							( GameData.getTabNavComp( "TabNavContent_0" ) as compPptBoard ).isLibraryTileUse = true;
+						}
+					}
+					
+					if( GameData.currentPageName == "TabNavContent_1" )
+					{
+						( GameData.currentBaord as boardMainClass).activeLayer("libraryLayer");
+						( GameData.getTabNavComp( "TabNavContent_1" ) as compImageBoard ).isLibraryTileUse = true;
+						/**如果畫廊有開 就要關掉**/
+						if( ( GameData.getTabNavComp( "TabNavContent_1" ) as compImageBoard ).isImageTileUse )
+						{
+							( GameData.getTabNavComp( "TabNavContent_1" ) as compImageBoard ).isImageTileUse = false;
+							this.imageTileShow.visible = false;
+						}
+						return;
+					}
+					
+					if( GameData.currentPageName == "TabNavContent_2" )
+					{
+						( GameData.currentBaord as boardMainClass).activeLayer("libraryLayer");
+						( GameData.getTabNavComp( "TabNavContent_2" ) as compImageBoard ).isLibraryTileUse = true;
+						/**如果畫廊有開 就要關掉**/
+						if( ( GameData.getTabNavComp( "TabNavContent_2" ) as compImageBoard ).isImageTileUse )
+						{
+							( GameData.getTabNavComp( "TabNavContent_2" ) as compImageBoard ).isImageTileUse = false;
+							this.imageTileShow.visible = false;
+						}
+						return;
+					}
+					
+					if( GameData.currentPageName == "TabNavContent_3" )
+					{
+						( GameData.currentBaord as boardMainClass).activeLayer("libraryLayer");
+						( GameData.getTabNavComp( "TabNavContent_3" ) as compImageBoard ).isLibraryTileUse = true;
+						/**如果畫廊有開 就要關掉**/
+						if( ( GameData.getTabNavComp( "TabNavContent_3" ) as compImageBoard ).isImageTileUse )
+						{
+							( GameData.getTabNavComp( "TabNavContent_3" ) as compImageBoard ).isImageTileUse = false;
+							this.imageTileShow.visible = false;
+						}
+						return;
+					}
+				}
+			}
+			
+			/**關閉當前頁面的library**/
+			private function libraryCloseInCurrentPage():void
+			{
+				libraryTileShow.visible = false;
+				leftToolBar.drawTool.setLibraryCss(false);
+				/**根據當前頁面 把boardLayer 和 isLibraryTileUse還原**/
+				for( var j:int = 0 ; j< GameData.allBoardCollection.length ; j++)
+				{
+					/**如果在ppt**/
+					if( GameData.currentPageName == "TabNavContent_0" )
+					{
+						if( ( GameData.allBoardCollection[j] as boardMainClass ).parentType == "ppt" )
+						{
+							/**改變階層*/
+							( GameData.allBoardCollection[j] as boardMainClass ).resetActiveLayer();
+							//( GameData.currentBaord as boardMainClass).resetActiveLayer();
+							/**改變當前狀態**/
+							( GameData.getTabNavComp( "TabNavContent_0" ) as compPptBoard ).isLibraryTileUse = false;
+						}
+					}
+					
+					if( GameData.currentPageName == "TabNavContent_1" )
+					{
+						( GameData.currentBaord as boardMainClass).resetActiveLayer();
+						( GameData.getTabNavComp( "TabNavContent_1" ) as compImageBoard ).isLibraryTileUse = false;
+						return;
+					}
+					
+					if( GameData.currentPageName == "TabNavContent_2" )
+					{
+						( GameData.currentBaord as boardMainClass).resetActiveLayer();
+						( GameData.getTabNavComp( "TabNavContent_2" ) as compImageBoard ).isLibraryTileUse = false;
+						return;
+					}
+					
+					if( GameData.currentPageName == "TabNavContent_3" )
+					{
+						( GameData.currentBaord as boardMainClass).resetActiveLayer();
+						( GameData.getTabNavComp( "TabNavContent_3" ) as compImageBoard ).isLibraryTileUse = false;
+						return;
+					}
+				}
+			}
+			
+			
+			private function inputTabNavContent():void
+			{
+				// 7-> 六個PAGE
+				for( var i:int = 0; i < 7 ; i++ )
+				{
+					//第一個頁面 PPT
+					if( i == 0 )
+					{
+						GameData.allPageComp.push( pptContent );
+						(this.arTabCollection[i] as NavigatorContent ).addElement( pptContent );
+					}
+					//
+					if( i == 1 )
+					{
+						imageContent = new compImageBoard();
+						GameData.allPageComp.push( imageContent );
+						(this.arTabCollection[i] as NavigatorContent ).addElement( imageContent );
+					}
+					//
+					if( i == 2 )
+					{
+						imageContent = new compImageBoard();
+						GameData.allPageComp.push( imageContent );
+						(this.arTabCollection[i] as NavigatorContent ).addElement( imageContent );
+					}
+					//
+					if( i == 3 )
+					{
+						imageContent = new compImageBoard();
+						GameData.allPageComp.push( imageContent );
+						(this.arTabCollection[i] as NavigatorContent ).addElement( imageContent );
+					}
+					//
+					if( i == 4 )
+					{
+						animationContent = new compFlashBoard();
+						GameData.allPageComp.push( animationContent );
+						(this.arTabCollection[i] as NavigatorContent ).addElement( animationContent );
+						//
+						animationContent.addEventListener(Event.ENTER_FRAME,onCheckFlashTileVisible);
+					}
+					//
+					if( i == 5 )
+					{
+						videoContent = new compVideoBoard();
+						GameData.allPageComp.push( videoContent );
+						(this.arTabCollection[i] as NavigatorContent ).addElement( videoContent );
+						//
+						videoContent.addEventListener(Event.ENTER_FRAME,onCheckVideoTileVisible);
+					}
+					//
+					if( i == 6 )
+					{
+						ispringContent = new compIspringBoard();
+						GameData.allPageComp.push( ispringContent );
+						(this.arTabCollection[i] as NavigatorContent ).addElement( ispringContent );
+					}
+					//this.arTabCollection.push( this.getChildByName( "TabNavContent_" + i ) );
+				}
+			}
+			
+			public function loaderImageAssets():void
+			{
+				GameData.loaderReference.fileLoader("imageBoardImage");
+				setImageAssets();
+			}
+			
+			private function setImageAssets():void
+			{
+				for( var i:int =0 ; i< GameData.loaderReference.arAllTileInformation.length ; i++ )
+				{
+					if( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).theVoType == "imageBoardImage" )
+					{
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(MouseEvent.CLICK,onImageClick);
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(MouseEvent.RIGHT_CLICK,onShowCloseBtn);
+						( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).closeButton as closeBtn).addEventListener(MouseEvent.CLICK,onCloseBtnClick);
+						imageTileShow.addChild( GameData.loaderReference.arAllTileInformation[i] );
+					}
+				}
+			}
+			
+			public function onImageClick(ev:Event):void
+			{
+				/**先判斷頁面 如果不是imageBoard頁面就離開**/
+				/****/
+				if( ( GameData.getTabNavComp( GameData.currentPageName ) is compImageBoard ) )
+				{
+					/**設定背景**/
+					( GameData.getTabNavComp( GameData.currentPageName ) as compImageBoard ).setBackGround( (ev.currentTarget as AdvanceUIComponent).loadPathInEnglish );
+					/**清除畫板**/
+					( ( GameData.getTabNavComp( GameData.currentPageName ) as compImageBoard ).getBaordInstance() as boardMainClass ).clearDrawBoard();
+					/**設定好就關閉視窗**/
+					controlImageTile(false);
+				}
+			}
+			
+			/**開啟關閉按鈕**/
+			private function onShowCloseBtn(ev:Event):void
+			{
+				( ev.currentTarget as AdvanceUIComponent ).openCloseButton();
+			}
+			
+			
+			/**點下關閉按鈕**/
+			public function onCloseBtnClick(ev:Event):void
+			{
+				if( ( ev.currentTarget.parent is AdvanceUIComponent) )
+				{
+					/**空的表示是單檔**/
+					if( (ev.currentTarget.parent as AdvanceUIComponent ).folderName == "" )
+					{
+						//trace( (ev.currentTarget.parent as AdvanceUIComponent ).theVoType );
+						/**如果是一般圖片檔案**/
+						if( (ev.currentTarget.parent as AdvanceUIComponent ).theVoType == "imageBoardImage" )
+						{
+							deleteFileOrFolder( pathChange( (ev.currentTarget.parent as AdvanceUIComponent ).loadPathInEnglish ) );
+						}
+						
+						if( (ev.currentTarget.parent as AdvanceUIComponent ).theVoType == "library" )
+						{
+							deleteFileOrFolder( pathChange( (ev.currentTarget.parent as AdvanceUIComponent ).loadPathInEnglish ) );
+						}
+						
+						/**如果是flash 檔案**/
+						if( (ev.currentTarget.parent as AdvanceUIComponent ).theVoType == "flash" )
+						{
+//							trace( (ev.currentTarget.parent as AdvanceUIComponent ).assetsPath ) ;
+//							trace( (ev.currentTarget.parent as AdvanceUIComponent ).imagePath );
+//							trace( pathChange( (ev.currentTarget.parent as AdvanceUIComponent ).assetsPath ) )
+//							trace( pathChange( (ev.currentTarget.parent as AdvanceUIComponent ).imagePath ) )
+//							trace();
+							deleteFileOrFolder( pathChange( (ev.currentTarget.parent as AdvanceUIComponent ).assetsPath ) );
+							deleteFileOrFolder( pathChange( (ev.currentTarget.parent as AdvanceUIComponent ).imagePath ) );
+						}
+						
+						if( (ev.currentTarget.parent as AdvanceUIComponent ).theVoType == "video" )
+						{
+							deleteFileOrFolder( pathChange( (ev.currentTarget.parent as AdvanceUIComponent ).assetsPath ) );
+							deleteFileOrFolder( pathChange( (ev.currentTarget.parent as AdvanceUIComponent ).imagePath ) );
+						}
+					}
+					else
+					{
+						/**這邊跑有資料夾的檔案**/
+						//trace( (ev.currentTarget.parent as AdvanceUIComponent ).folderPath );
+						deleteFileOrFolder( pathChange( (ev.currentTarget.parent as AdvanceUIComponent ).folderPath ) ,true);
+					}
+					
+					//刪除完成後重新載入資料
+					/**稍微等一下 等資料更新好後再進行填寫 不然會空白掉**/
+					var delayTimer:Timer = new Timer(500,1);
+					delayTimer.addEventListener(TimerEvent.TIMER_COMPLETE,setPptFolder);
+					delayTimer.start();
+				}
+			}
+			
+			private function setPptFolder(ev:Event):void
+			{
+				assetsImportComp(ev);
+			}
+			
+			/**刪除用**/
+			private function deleteFileOrFolder(sourcePath:String,isFolder:Boolean = false):void
+			{
+				if( isFolder )
+				{
+					var file:File = new File( File.applicationDirectory.resolvePath( sourcePath ).nativePath );
+					if( file.exists )
+					{
+						file.deleteDirectory(true);
+					}
+				}
+				else
+				{
+					var file_:File = new File( File.applicationDirectory.resolvePath( sourcePath ).nativePath );
+					if( file_.exists )
+					{
+						file_.deleteFile();
+					}
+				}
+			}
+			
+			/**中文檔名或是名稱轉換用**/
+			private function pathChange(sourcePath:String):String
+			{
+				var arStri:Array = sourcePath.split("/");
+				var chineseSource:String = "";
+				for( var i:int = 0 ; i< arStri.length ; i++)
+				{
+					if( GameData.chineseDictionary[ arStri[i] ] == undefined )
+					{
+						if( i == arStri.length - 1 )
+						{
+							chineseSource += arStri[i] ; 
+						}
+						else
+						{
+							chineseSource += arStri[i] + "/";
+						}
+					}
+					else
+					{
+						if( i == arStri.length - 1)
+						{
+							chineseSource += GameData.chineseDictionary[ arStri[i] ];
+						}
+						else
+						{
+							chineseSource += GameData.chineseDictionary[ arStri[i] ] + "/";
+						}
+					}
+				}
+				
+				return chineseSource;
+			}
+			
+			private function loaderLibraryAssets():void
+			{
+				GameData.loaderReference.fileLoader("library");
+				setLibraryAssets();
+			}
+			
+			private function setLibraryAssets():void
+			{
+				for( var i:int =0 ; i< GameData.loaderReference.arAllTileInformation.length ; i++ )
+				{
+					if( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).theVoType == "library" )
+					{
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(MouseEvent.CLICK,onLibraryContentClick);
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(MouseEvent.RIGHT_CLICK,onShowCloseBtn);
+						( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).closeButton as closeBtn).addEventListener(MouseEvent.CLICK,onCloseBtnClick);
+						this.libraryTileShow.addChild( GameData.loaderReference.arAllTileInformation[i] );
+						//(GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(Event.ADDED_TO_STAGE,onAdd);
+						//(GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(Event.DEACTIVATE,onAdd);
+						//libraryTileShow.addEventListener(,onAdd);
+					}
+				}
+			}
+			
+			/**點了後 會先清空所有外框 再把目標設定框 以該目標進行複製**/
+			private function onLibraryContentClick(ev:Event):void
+			{
+				/**清空所有外框**/
+				clearAllLibraryFrame();
+				/**消除所有的元件控制項動作**/
+				/**開啟目標紅色外框**/
+				onRemoveAllControlBarActive(new Event("a"));
+				openLibraryTargetFrame( ev.currentTarget.name );
+				/**點選元件後 預設是複製**/
+				leftToolBar.drawTool.libraryControlComp.onColtrolCopy();
+			}
+			
+			private function loaderFlashAssets():void
+			{
+				GameData.loaderReference.fileLoader("flashImage");
+				setFlashAssets();
+			}
+			
+			private function setFlashAssets():void
+			{
+				for( var i:int =0 ; i< GameData.loaderReference.arAllTileInformation.length ; i++ )
+				{
+					if( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).theVoType == "flash" )
+					{
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(MouseEvent.CLICK,onAnimationShow);
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(MouseEvent.RIGHT_CLICK,onShowCloseBtn);
+						( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).closeButton as closeBtn).addEventListener(MouseEvent.CLICK,onCloseBtnClick);
+						//trace("a")
+						this.flashTileShow.addChild( GameData.loaderReference.arAllTileInformation[i] );
+					}
+				}
+			}
+			
+			/**點了後 播放swf 檔案**/
+			private function onAnimationShow(ev:Event):void
+			{
+				/**關閉TILE**/
+				this.libraryTileShow.visible = false;
+				
+				if( GameData.getCurrentTabNavComp() is compFlashBoard )
+				{
+					( GameData.getCurrentTabNavComp() as compFlashBoard ).isImageTileUse = false;
+					controlFlashTile(false);
+				}
+				
+				/**播放檔案**/
+				( GameData.getTabNavComp( GameData.currentPageName ) as compFlashBoard ).setBackGround( (ev.currentTarget as AdvanceUIComponent).loadPathInEnglish );
+			}
+			
+			private function loaderVideoAssets():void
+			{
+				GameData.loaderReference.fileLoader("videoImage");
+				setVideoAssets();
+			}
+			
+			private function setVideoAssets():void
+			{
+				for( var i:int =0 ; i< GameData.loaderReference.arAllTileInformation.length ; i++ )
+				{
+					if( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).theVoType == "video" )
+					{
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(MouseEvent.CLICK,onVideoShow);
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(MouseEvent.RIGHT_CLICK,onShowCloseBtn);
+						( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).closeButton as closeBtn).addEventListener(MouseEvent.CLICK,onCloseBtnClick);
+						//trace("a")
+						this.videoTileShow.addChild( GameData.loaderReference.arAllTileInformation[i] );
+					}
+				}
+			}
+			
+			private function onVideoShow(ev:Event):void
+			{
+				/**關閉TILE**/
+				this.libraryTileShow.visible = false;
+				
+				if( GameData.getCurrentTabNavComp() is compVideoBoard )
+				{
+					( GameData.getCurrentTabNavComp() as compVideoBoard ).isImageTileUse = false;
+					controlVideoTile(false);
+				}
+				
+				/**播放檔案**/
+				( GameData.getTabNavComp( GameData.currentPageName ) as compVideoBoard ).setBackGround( (ev.currentTarget as AdvanceUIComponent).loadPathInEnglish );
+			}
+			
+			private function clearAllLibraryFrame():void
+			{
+				for( var i:int =0 ; i< GameData.loaderReference.arAllTileInformation.length ; i++ )
+				{
+					if( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).theVoType == "library" )
+					{
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).hideSmallRedFrame();
+					}
+				}
+			}
+			
+			private function openLibraryTargetFrame(currentName:String):void
+			{
+				for( var i:int =0 ; i< GameData.loaderReference.arAllTileInformation.length ; i++ )
+				{
+					if( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).name == currentName )
+					{
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).setSmallRedFrameOpen();
+					}
+				}
+			}
+			
+			// change the 'TabNavigator' page
+			private function onchangePage(ev:Event):void
+			{
+				trace( "onchangePage" );
+				/**換頁時 如果有開library 先把它關掉**/
+				if( this.libraryTileShow.visible )
+				{
+					this.libraryCloseInCurrentPage();
+				}
+				
+				/**關閉元件庫控制選項comp**/
+				leftToolBar.drawTool.removeLibraryControlComp();
+				/**清空所有外框**/
+				clearAllLibraryFrame();
+				/**消除所有的元件控制項動作**/
+				onRemoveAllControlBarActive(new Event("a"));
+				
+				GameData.currentPageName = ( ev.currentTarget as TabNavigator ) .selectedChild .name ;
+				
+				/**換頁順便改video tile的參數**/
+				if( GameData.currentPageName != "TabNavContent_5" )
+				{
+					this.videoTileShow.visible = false;
+				}
+				
+				/**換頁順便改flash tile的參數**/
+				if( GameData.currentPageName != "TabNavContent_4" )
+				{
+					this.flashTileShow.visible = false;
+				}
+				
+				/**由於flash 頁面需要獨立控制畫板的上下 所以當切換頁面時把所有的頁面都先回復層級**/
+				for( var i:int = 0 ;i < GameData.allBoardCollection.length ; i++ )
+				{
+					( GameData.allBoardCollection[i] as boardMainClass ).resetActiveLayer();
+				}
+				
+				/**將所有image畫面的tile都移出去外面**/
+				for( var j:int = 0 ; j < GameData.allPageComp.length ; j++)
+				{
+					if( GameData.allPageComp[j] is compImageBoard )
+					{
+						( GameData.allPageComp[j] as compImageBoard ).isImageTileUse = false;
+					}
+				}
+				this.imageTileShow.visible = false;
+				/**把鉛筆狀態調整回來**/
+				currentPnnSize = prePenSize;
+				currentPnnSize = 5 ;
+				/**修改成換頁面就調成最細  並且是鉛筆**/
+				leftToolBar.drawTool.changePenSize( 5 );
+				GameData.isPenUse = true;
+				leftToolBar.drawTool.onPenCssSet();
+				GameData.isEraserUse = false;
+				leftToolBar.drawTool.onEraserCssSet();
+				setAllBoardPenState();
+				/***********************************/
+				
+				/**
+				 * 切換左側的標誌
+				 * 切換當前頁面的狀態 ( 什麼TILE有開 之類的 )
+				 * 
+				 * **/
+				if( GameData.currentPageName == "TabNavContent_0" )
+				{
+					leftToolBar.setMainTitle ("ppt");
+					/**設定目前的baord**/
+					if( ( GameData.getCurrentTabNavComp() as compPptBoard ).getBoardInstance() != null )
+					{
+						GameData.currentBaord = ( GameData.getCurrentTabNavComp() as compPptBoard ).getBoardInstance() ;
+					}
+				}
+				
+				if( GameData.currentPageName == "TabNavContent_1" )
+				{
+					leftToolBar.setMainTitle ("image");
+					/**設定目前的baord**/
+					GameData.currentBaord = ( GameData.getCurrentTabNavComp() as compImageBoard ).getBaordInstance() ;
+				}
+				
+				if( GameData.currentPageName == "TabNavContent_2" )
+				{
+					leftToolBar.setMainTitle ("image");
+					/**設定目前的baord**/
+					GameData.currentBaord = ( GameData.getCurrentTabNavComp() as compImageBoard ).getBaordInstance() ;
+					//
+					/*
+					if( this.libraryTileShow.visible )
+					{
+						( GameData.getCurrentTabNavComp() as compImageBoard ).isImageTileUse = false;
+						this.libraryOpenInCurrentPage();
+					}
+					*/
+				}
+				
+				if( GameData.currentPageName == "TabNavContent_3" )
+				{
+					leftToolBar.setMainTitle ("image");
+					/**設定目前的baord**/
+					GameData.currentBaord = ( GameData.getCurrentTabNavComp() as compImageBoard ).getBaordInstance() ;
+				}
+				
+				if( GameData.currentPageName == "TabNavContent_4" )
+				{
+					leftToolBar.setMainTitle ("flash");
+					/**設定目前的baord**/
+					GameData.currentBaord = ( GameData.getCurrentTabNavComp() as compFlashBoard ).getBaordInstance() ;
+				}
+				
+				if( GameData.currentPageName == "TabNavContent_5" )
+				{
+					leftToolBar.setMainTitle ("video");
+					/**設定目前的baord**/
+					GameData.currentBaord = ( GameData.getCurrentTabNavComp() as compVideoBoard ).getBaordInstance() ;
+				}
+				
+				if( GameData.currentPageName == "TabNavContent_6" )
+				{
+					leftToolBar.setMainTitle ("ispring");
+					GameData.currentBaord = ( GameData.getCurrentTabNavComp() as compIspringBoard ).getBaordInstance() ;
+				}
+				
+				changeImageTileVisible();
+				//
+				/**換頁順便改flash tile的參數**/
+				if( ( GameData.currentBaord as boardMainClass ) != null )
+				{
+					if( GameData.currentPageName == "TabNavContent_4" && ( GameData.currentBaord as boardMainClass ).currentFlashMcVersion == "as2Control" || ( GameData.currentBaord as boardMainClass ).currentFlashMcVersion == "as3Control")
+					{
+						GameData.isPenUse = true;
+						evPencelClick(new Event("e"));
+						( GameData.currentBaord as boardMainClass ).activeLayer("backGroundLayer");
+					}
+				}
+				
+				/**更換video 的畫板狀態**/
+				if( GameData.currentPageName == "TabNavContent_5" )
+				{
+					GameData.isPenUse = true;
+					evPencelClick(new Event("e"));
+					( GameData.currentBaord as boardMainClass ).activeLayer("backGroundLayer");
+				}
+				//changeLibraryTileVisible();
+			}
+			
+			/**按照不同的頁面按鈕做動作*/
+			private function onMainButtonClick(ev:Event):void
+			{
+				//按照不同的頁次進行動作
+				if( ev.target.styleName == "PptBtnCSS" )
+				{
+					/**還原pptFolder**/
+					if( GameData.getCurrentTabNavComp() is compPptBoard ) 
+					{
+						( GameData.getCurrentTabNavComp() as compPptBoard ).setPptFolder();
+					}
+				}
+				if( ev.target.styleName == "imgBtnCSS" )
+				{
+					/**如果imageTile有打開 就關起來**/
+					if( ( GameData.getCurrentTabNavComp() as compImageBoard ).isImageTileUse )
+					{
+						( GameData.getCurrentTabNavComp() as compImageBoard ).isImageTileUse = false;
+						controlImageTile(false);
+					}
+					else
+					{
+						( GameData.getCurrentTabNavComp() as compImageBoard ).isImageTileUse = true;
+						controlImageTile(true);
+					}
+					
+				}
+				if( ev.target.styleName == "AnimationBtnCSS" )
+				{
+					/**如果imageTile有打開 就關起來**/
+					if( ( GameData.getCurrentTabNavComp() as compFlashBoard ).isImageTileUse )
+					{
+						( GameData.getCurrentTabNavComp() as compFlashBoard ).isImageTileUse = false;
+						controlFlashTile(false);
+					}
+					else
+					{
+						( GameData.getCurrentTabNavComp() as compFlashBoard ).isImageTileUse = true;
+						controlFlashTile(true);
+					}
+				}
+				if( ev.target.styleName == "VedioBtnCSS" )
+				{
+					/**如果imageTile有打開 就關起來**/
+					if( ( GameData.getCurrentTabNavComp() as compVideoBoard ).isImageTileUse )
+					{
+						( GameData.getCurrentTabNavComp() as compVideoBoard ).isImageTileUse = false;
+						controlVideoTile(false);
+					}
+					else
+					{
+						( GameData.getCurrentTabNavComp() as compVideoBoard ).isImageTileUse = true;
+						controlVideoTile(true);
+					}
+				}
+				
+				if( ev.target.styleName == "IspringBtnCSS" )
+				{
+					/**還原pptFolder**/
+					if( GameData.getCurrentTabNavComp() is compIspringBoard ) 
+					{
+						( GameData.getCurrentTabNavComp() as compIspringBoard ).setPptFolder();
+					}
+				}
+			}
+			
+			/**控制imageTile的開啟 / 關閉**/
+			private function controlImageTile(bool:Boolean):void
+			{
+				/**開啟時 把所有當前的頁面都關閉 包含功能 頁面包含  筆 橡皮擦  元件庫**/
+				/**如果要打開視窗*/
+				//trace("show hide imgtile" + bool);
+				if( bool )
+				{
+					/**開啟視窗**/
+					imageTileShow.visible = true;
+					( GameData.getCurrentTabNavComp() as compImageBoard ).isImageTileUse = true;
+					/**設定activeLayer**/
+					//( GameData.getCurrentTabNavComp() as compImageBoard ).setActiveLayer("backGroundLayer");
+					/**紀錄鉛筆 橡皮擦畫面**/
+					/**先記錄  改變  在回復**/
+					/*  這邊是因為顯示的問題   如果點了其他要把筆或橡皮擦的畫面給清空再跑
+					var prePneUseState:Boolean = GameData.isPenUse ;
+					var preEraserUseState:Boolean = GameData.isEraserUse ; 
+					GameData.isPenUse = false
+					GameData.isEraserUse = false;
+					leftToolBar.drawTool.onPenCssSet();
+					leftToolBar.drawTool.onEraserCssSet();
+					GameData.isPenUse = prePneUseState
+					GameData.isEraserUse = preEraserUseState;
+					*/
+					/**關閉libraryTile**/
+					( GameData.getCurrentTabNavComp() as compImageBoard ).isLibraryTileUse = false;
+					/**關閉元件庫控制選項comp**/
+					leftToolBar.drawTool.removeLibraryControlComp();
+					/**清空所有外框**/
+					clearAllLibraryFrame();
+					/**消除所有的元件控制項動作**/
+					onRemoveAllControlBarActive( new Event("a"));
+					leftToolBar.drawTool.setLibraryCss(false);
+					changeLibraryTileVisible();
+					//libraryCloseInCurrentPage();
+				}
+				else
+				{
+					/**開啟關閉**/
+					imageTileShow.visible = false;
+					( GameData.getCurrentTabNavComp() as compImageBoard ).isImageTileUse = false;
+					/**回復activeLayer**/
+					( GameData.getCurrentTabNavComp() as compImageBoard ).resetActiveLayer();
+					/**開啟鉛筆 橡皮擦畫面**/
+					leftToolBar.drawTool.onPenCssSet();
+					leftToolBar.drawTool.onEraserCssSet();
+					/**由於更改過筆的狀態 要全部更改**/
+					/**將所有的板子都換過**/
+					for( var i:int = 0 ; i< GameData.allBoardCollection.length ; i++)
+					{
+						( GameData.allBoardCollection[i] as boardMainClass ).setPenState(GameData.isPenUse);
+						( GameData.allBoardCollection[i] as boardMainClass ).setEraserState(GameData.isEraserUse);
+						//也要換筆的SIZE
+						( GameData.allBoardCollection[i] as boardMainClass ).setPenSize( currentPnnSize );
+					}
+					/**關閉libraryTile**/
+				}
+			}
+			
+			private function controlFlashTile(bool:Boolean):void
+			{
+				if( bool )
+				{
+					/**開啟視窗**/
+					this.flashTileShow .visible = true;
+					( GameData.getCurrentTabNavComp() as compFlashBoard ).isImageTileUse = true;
+					/**設定activeLayer**/
+					//( GameData.getCurrentTabNavComp() as compFlashBoard ).setActiveLayer("backGroundLayer");
+					/**紀錄鉛筆 橡皮擦畫面**/
+					/**先記錄  改變  在回復**/
+					/**在 flash 不需要關閉libraryTile   因為在flash 不能使用library**/
+					//( GameData.getCurrentTabNavComp() as compFlashBoard ).isLibraryTileUse = false;
+					//leftToolBar.drawTool.setLibraryCss(false);
+					//changeLibraryTileVisible();
+				}
+				else
+				{
+					/**關閉視窗**/
+					this.flashTileShow .visible = false;
+					( GameData.getCurrentTabNavComp() as compFlashBoard ).isImageTileUse = false;
+					/**設定activeLayer**/
+					//( GameData.getCurrentTabNavComp() as compFlashBoard ).setActiveLayer("backGroundLayer");
+				}
+			}
+			
+			private function controlVideoTile(bool:Boolean):void
+			{
+				if( bool )
+				{
+					/**開啟視窗**/
+					this.videoTileShow .visible = true;
+					( GameData.getCurrentTabNavComp() as compVideoBoard ).isImageTileUse = true;
+					/**設定activeLayer**/
+					//( GameData.getCurrentTabNavComp() as compFlashBoard ).setActiveLayer("backGroundLayer");
+					/**紀錄鉛筆 橡皮擦畫面**/
+					/**先記錄  改變  在回復**/
+					/**在 flash 不需要關閉libraryTile   因為在flash 不能使用library**/
+					//( GameData.getCurrentTabNavComp() as compFlashBoard ).isLibraryTileUse = false;
+					//leftToolBar.drawTool.setLibraryCss(false);
+					//changeLibraryTileVisible();
+				}
+				else
+				{
+					/**關閉視窗**/
+					this.videoTileShow .visible = false;
+					( GameData.getCurrentTabNavComp() as compVideoBoard ).isImageTileUse = false;
+					/**設定activeLayer**/
+					//( GameData.getCurrentTabNavComp() as compFlashBoard ).setActiveLayer("backGroundLayer");
+				}
+			}
+			
+			private function onCheckFlashTileVisible(ev:Event):void
+			{
+				if( GameData.getCurrentTabNavComp() is compFlashBoard )
+				{
+					if( ( GameData.getCurrentTabNavComp() as compFlashBoard ).isImageTileUse == true )
+					{
+						flashTileShow .visible = true;
+					}
+					else
+					{
+						flashTileShow .visible = false;
+					}
+				}
+			}
+			
+			private function onCheckVideoTileVisible(ev:Event):void
+			{
+				if( GameData.getCurrentTabNavComp() is compVideoBoard )
+				{
+					if( ( GameData.getCurrentTabNavComp() as compVideoBoard ).isImageTileUse == true )
+					{
+						videoTileShow .visible = true;
+					}
+					else
+					{
+						videoTileShow .visible = false;
+					}
+				}
+			}
+			
+			/**按照目前的頁面狀態 改變imageTile的位置**/
+			private function changeImageTileVisible():void
+			{
+				if( ( GameData.getCurrentTabNavComp() is compImageBoard ) )
+				{
+					if( ( GameData.getCurrentTabNavComp() as compImageBoard ).isImageTileUse )
+					{
+						imageTileShow.visible = true;
+					}
+					else
+					{
+						imageTileShow.visible = false;
+					}
+				}
+				else
+				{
+					imageTileShow.visible = false;
+				}
+			}
+			
+			/**按照目前的頁面狀態 改變libraryTile的visible**/
+			/**這邊是跑切換 也就是當 library 有開啟 且點下了 開啟imageTile等才會跑**/
+			/**開啟image等視窗時 把library消除**/
+			private function changeLibraryTileVisible():void
+			{
+				/**暫時的**/
+				if( GameData.currentPageName == "TabNavContent_4" || GameData.currentPageName == "TabNavContent_5" )
+				{
+					return;
+				}
+				
+				if( ( GameData.getCurrentTabNavComp() is compImageBoard ) )
+				{
+					if( ( GameData.getCurrentTabNavComp() as compImageBoard ).isLibraryTileUse )
+					{
+						this.libraryTileShow .visible = true;
+						( GameData.getCurrentTabNavComp() as compImageBoard ).isLibraryTileUse = true;
+					}
+					else
+					{
+						libraryTileShow.visible = false;
+						( GameData.getCurrentTabNavComp() as compImageBoard ).isLibraryTileUse = false;
+					}
+				}
+				
+				if( ( GameData.getCurrentTabNavComp() is compPptBoard ) )
+				{
+					if( ( GameData.getCurrentTabNavComp() as compPptBoard ).isLibraryTileUse )
+					{
+						this.libraryTileShow .visible = true;
+						//( GameData.getCurrentTabNavComp() as compImageBoard ).isLibraryTileUse
+					}
+					else
+					{
+						libraryTileShow.visible = false;
+						( GameData.getCurrentTabNavComp() as compImageBoard ).isLibraryTileUse = false;
+					}
+				}
+				
+				/**強制關閉library時 其他畫面也要改變**/
+				for( var i:int = 0 ; i< GameData.allPageComp.length ; i++ )
+				{
+					if( GameData.allPageComp[i] is compImageBoard )
+					{
+						if( ( GameData.allPageComp[i] as compImageBoard ) .isImageTileUse )
+						{
+							/**把layer調整回background*/
+							//GameData.getBoard( ( GameData.allPageComp[i] as compImageBoard ).name ).activeLayer("backGroundLayer");
+						}
+						else
+						{
+							GameData.getBoard( ( GameData.allPageComp[i] as compImageBoard ).name ).activeLayer("penLayer");
+						}
+					}
+					
+					if( GameData.allPageComp[i] is compPptBoard )
+					{
+						if( ( GameData.allPageComp[i] as compPptBoard ) .isLibraryTileUse )
+						{
+							/**把 ppt 所有頁面的layer調整回penLayer*/
+							setAllPptBaordLayer("penLayer");//GameData.getBoard( ( GameData.allPageComp[i] as compPptBoard ).name ).activeLayer("penLayer");
+							( GameData.allPageComp[i] as compPptBoard ).isLibraryTileUse = false;
+						}
+					}
+				}
+			}
+			
+			/**更改ppt頁面所有layer的層***/
+			private function setAllPptBaordLayer(layerName:String):void
+			{
+				for( var j:int = 0 ; j< GameData.allBoardCollection.length ; j++)
+				{
+					if( (GameData.allBoardCollection[j] as boardMainClass ).parentType == "ppt" )
+					{
+						(GameData.allBoardCollection[j] as boardMainClass ).activeLayer( layerName );
+					}
+				}
+			}
+			
+			
+			/**控制當前頁面元件 開啟縮放功能**/
+			private function setZoomOpen(ev:Event):void
+			{
+				if( GameData.currentBaord != null )
+				{
+					GameData.currentBaord.setLibraryZoomOpen();
+					/**如果是ppt 則每頁都要置換   但是理論上 在開啟元件庫時 不能選擇ppt才對 所以不做**/
+					/*
+					if( GameData.currentPageName == "TabNavContent_0" )
+					{
+						setPptAllBoardFunciton(GameData.currentBaord.setLibraryZoomOpen);
+					}
+					*/
+				}
+				//
+				onVisibleAllCloseBtn();
+				onSetLibraryCopyClose();
+			}
+			
+			/**控制當前頁面元件 開啟複製功能**/
+			private function setCopyOpen(ev:Event):void
+			{
+				if( GameData.currentBaord != null )
+				{
+					GameData.currentBaord.setLibraryCopyOpen();
+				}
+				//
+				onVisibleAllCloseBtn();
+			}
+			
+			/**控制當前頁面元件 開啟旋轉功能**/
+			private function setRotateOpen(ev:Event):void
+			{
+				if( GameData.currentBaord != null )
+				{
+					GameData.currentBaord.setLibraryRotate();
+				}
+				//
+				onVisibleAllCloseBtn();
+				onSetLibraryCopyClose();
+			}
+			
+			
+			/**控制當前頁面元件 開啟全部清除功能**/
+			/**刪除該畫面所有的元件**/
+			private function deleteCurrentBoardAllLibrary(ev:Event):void
+			{
+				if( GameData.currentBaord != null )
+				{
+					GameData.currentBaord.deleteAllLibrary();
+				}
+			}
+			
+			/**控制當前頁面元件 開啟開啟所有按刪除功能**/
+			/**顯示所有元件刪除紐**/
+			private function onShowAllCloseBtn(ev:Event):void
+			{
+				if( GameData.currentBaord != null )
+				{
+					GameData.currentBaord.setAllCloseBtnShow();
+				}
+				onSetLibraryCopyClose();
+			}
+			/**關閉所有元件刪除紐**/
+			private function onVisibleAllCloseBtn():void
+			{
+				if( GameData.currentBaord != null )
+				{
+					GameData.currentBaord.setAllCloseBtnVisible();
+				}
+			}
+			
+			/**關閉複製功能***/
+			private function onSetLibraryCopyClose():void
+			{
+				if( GameData.currentBaord != null )
+				{
+					GameData.currentBaord.setLibraryCopyClose();
+				}
+			}
+			
+			/**ppt 頁面改變board內的func***/
+			private function setPptAllBoardFunciton(func:Function):void
+			{
+				for( var i:int = 0 ; i< GameData.allBoardCollection.length ; i++)
+				{
+					if( (GameData.allBoardCollection[i] as boardMainClass ).parentType == "ppt" )
+					{
+						//(GameData.allBoardCollection[i] as boardMainClass ).func();
+						func();
+					}
+				}
+			}
+			
+			/**移除所有按鈕的事件***/
+			private function onRemoveAllControlBarActive(ev:Event):void
+			{
+				if( GameData.currentBaord != null )
+				{
+					GameData.currentBaord.setRemoveAllAction();
+				}
+				onSetLibraryCopyClose();
+				onVisibleAllCloseBtn();
+				
+				/**修改css**/
+				if( leftToolBar.drawTool.libraryControlComp != null )
+				{
+					leftToolBar.drawTool.libraryControlComp.setAllCssClsar();
+				}
+			}
+			
+			//關閉APP
+			public function onClose():void
+			{
+				this.close();
+			}
+		]]>
+	</fx:Script>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		@namespace com "com.*";
+		@namespace comp "comp.*";
+		
+		mx|TabNavigator {
+			
+			tabStyleName: "myPptTabCSS_1";
+			
+			selectedTabTextStyleName: "tabBtnPPTSkin_0";
+			firstTabStyleName : "myPptTabCSS_1";
+		}
+		
+		.myPptTabCSS_0 {
+			up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnPPTSkin_0");
+			over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnPPTSkin_0");
+			down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnPPTSkin_0");
+			
+			selected-up-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnPPTSkin_1");
+			selected-down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnPPTSkin_1");
+			selected-disabled-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnPPTSkin_1");
+			selected-over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnPPTSkin_1");
+		}
+		
+		.myPptTabCSS_1 {
+			up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnPPTSkin_1");
+			over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnPPTSkin_1");
+			down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnPPTSkin_1");
+		}
+		
+		.myBoardTabCSS_0 {
+			up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnBoardSkin_0");
+			over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnBoardSkin_0");
+			down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnBoardSkin_0");
+			
+			selected-up-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnBoardSkin_1");
+			selected-down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnBoardSkin_1");
+			selected-disabled-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnBoardSkin_1");
+			selected-over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnBoardSkin_1");
+		}
+		.myFlashTabCSS_0 {
+			up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnFlashSkin_0");
+			over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnFlashSkin_0");
+			down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnFlashSkin_0");
+			
+			selected-up-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnFlashSkin_1");
+			selected-down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnFlashSkin_1");
+			selected-disabled-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnFlashSkin_1");
+			selected-over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnFlashSkin_1");
+		}
+		
+		.myVideoTabCSS_0 {
+			up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnVideoSkin_0");
+			over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnVideoSkin_0");
+			down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnVideoSkin_0");
+			
+			selected-up-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnVideoSkin_1");
+			selected-down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnVideoSkin_1");
+			selected-disabled-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnVideoSkin_1");
+			selected-over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnVideoSkin_1");
+		}
+		
+		.myIspringTabCSS_0 {
+			up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnIspringSkin_0");
+			over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnIspringSkin_0");
+			down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnIspringSkin_0");
+			
+			selected-up-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnIspringSkin_1");
+			selected-down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnIspringSkin_1");
+			selected-disabled-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnIspringSkin_1");
+			selected-over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="tabBtnIspringSkin_1");
+		}
+		
+		.appCloseBtn {
+			up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="appCloseBtn");
+			over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="appCloseBtn");
+			down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="appCloseBtn");
+		}
+		
+	</fx:Style>
+	
+	<mx:HBox horizontalGap="0">
+		<comp:compLeftToolBar id="leftToolBar" showMessage="ppt" y="40">
+		</comp:compLeftToolBar>
+		
+		<mx:TabNavigator id="myTabs" x="120" y="0" width="1920" height="1080" backgroundColor="#AA9B95" paddingTop="3" fontSize="25" change="onchangePage(event)"> 
+			<s:NavigatorContent id="abd"  label="                      " name="TabNavContent_0">
+				
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent id="ccc"  label="                      " name="TabNavContent_1">
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent id="ddd"  label="                      " name="TabNavContent_2">
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent id="eee"  label="                      " name="TabNavContent_3">
+			</s:NavigatorContent>
+			<s:NavigatorContent id="fff"  label="                      " name="TabNavContent_4">
+				
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent id="ggg"  label="                      " name="TabNavContent_5">
+				
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent id="hhh"  label="                      " name="TabNavContent_6">
+			</s:NavigatorContent>
+			
+			<!--
+			<s:NavigatorContent id="ncNav_0"    label="                      " name="abd">
+			
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent id="ncNav_1"  label="                      " name="ccc">
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent id="ncNav_2"  label="                      " name="ddd">
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent id="ncNav_3"  label="                      " name="eee">
+			</s:NavigatorContent>
+			<s:NavigatorContent id="ncNav_4"  label="                      " name="fff">
+			
+			</s:NavigatorContent>
+			
+			<s:NavigatorContent id="ncNav_5"  label="                      " name="ggg">
+			
+			</s:NavigatorContent>
+			-->
+		</mx:TabNavigator>
+	</mx:HBox>
+	
+	<mx:Button id="closeBtn_" width="31" height="31" label="" click="onClose()" styleName="appCloseBtn" />
+	<!--
+	<mx:HBox id="libraryBrnGroup" visible="true">
+		<mx:Button id="aaa" width="31" height="31" label="" click="deleteCurrentBoardAllLibrary()" styleName="appCloseBtn" />
+		<mx:Button id="bbb" x="50" width="31" height="31" label="" click="onShowAllCloseBtn()" styleName="appCloseBtn" />
+		<mx:Button id="qqq" x="100" width="31" height="31" label="" click="setRotateOpen()" styleName="appCloseBtn" />
+		<mx:Button id="zzz" x="150" width="31" height="31" label="" click="setZoomOpen()" styleName="appCloseBtn" />
+		<mx:Button id="vvv" x="200" width="31" height="31" label="" click="setCopyOpen()" styleName="appCloseBtn" />
+	</mx:HBox>
+	-->
+	<com:AdvanceTile id="imageTileShow" paddingTop="5"  verticalGap="8" backgroundColor="#cccccc">
+	</com:AdvanceTile>
+	
+	<com:AdvanceTile  visible="true" id="flashTileShow" paddingTop="5"  verticalGap="8" backgroundColor="#cccccc">
+	</com:AdvanceTile>
+	
+	<com:AdvanceTile  visible="true" id="videoTileShow" paddingTop="5"  verticalGap="8" backgroundColor="#cccccc">
+	</com:AdvanceTile>
+	
+	<com:AdvanceTile  visible="true" id="libraryTileShow" paddingTop="5"  verticalGap="8"  tileWidth="50" tileHeight="70" horizontalGap="15" backgroundColor="#cccccc">
+	</com:AdvanceTile>
+	
+</s:WindowedApplication>

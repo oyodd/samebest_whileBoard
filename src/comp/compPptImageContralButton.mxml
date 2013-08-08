@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="165" height="38">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			private function onLeftPage():void
+			{
+				var a:Event = new Event("leftPptButtonClcik",true,true);
+				this.dispatchEvent(a);
+			}
+			
+			private function onRightPage():void
+			{
+				var a:Event = new Event("rightPptButtonClcik",true,true);
+				this.dispatchEvent(a);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Style source="boardCSS.css" />
+	<mx:Button x="0" y="0" width="130" height="37" label="" styleName="pptConrolBoardGroundCSS"/>
+	<mx:Button width="61" height="36" label="" x="3" y="0" id="leftBtn" click="onLeftPage()" styleName="pptLeftBtnCSS"/>
+	<mx:Button id="rightBtn" x="65" y="0" width="61" height="36" label="" click="onRightPage()" styleName="pptRightBtnCSS"/>
+	
+	
+</mx:Canvas>

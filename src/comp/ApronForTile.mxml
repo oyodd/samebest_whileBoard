@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300" creationComplete="init()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.core.UIComponent;
+			
+			//黨版
+			[Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="SaveDialog")]
+			private var skinUiFrame_:Class;
+			public var eMc_skinUiFrame:* = new skinUiFrame_();
+			
+			private var boardGround:UIComponent = new UIComponent();
+			
+			private function init():void
+			{
+				boardGround.addChild( eMc_skinUiFrame );
+				this.addChild( boardGround );
+				boardGround.x = 0;
+			}
+		]]>
+	</fx:Script>
+</mx:Canvas>

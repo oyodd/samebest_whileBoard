@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"  verticalGap="5" creationComplete="init()" horizontalAlign="center" >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			
+			import com.GameData;
+			
+			private var localContralUpTargetBtnName:String = "";
+			
+			/**控制元件的五種按鈕COMP**/
+			public var libraryControlComp:compControlGroup;
+			
+			/**控制元件五種按鈕的COMP的空白**/
+			public var libraryControlBlankComp:compControlGroupBlank = new compControlGroupBlank();
+			
+			private function init():void
+			{
+				//addLibraryControlComp();
+				this.addChildAt( this.libraryControlBlankComp , 1);
+				( this.parent as compLeftToolBar).mainDrawBoard.height = 660;
+			}
+			
+			/**加入一個元件庫控制按鈕comp**/
+			public function addLibraryControlComp():void
+			{
+				/**更改底板大小**/
+				( this.parent as compLeftToolBar).mainDrawBoard.height = 660;
+				
+				if( this.libraryControlBlankComp != null )
+				{
+					this.removeChild( libraryControlBlankComp );
+					libraryControlBlankComp = null;
+				}
+				
+				libraryControlComp = new compControlGroup();
+				this.addChildAt( this.libraryControlComp , 1);
+			}
+			
+			/**把元件庫控制鈕comp清掉**/
+			public function removeLibraryControlComp():void
+			{
+				if( libraryControlComp != null )
+				{
+					/**更改底板大小**/
+					( this.parent as compLeftToolBar).mainDrawBoard.height = 660;
+					
+					/**把有圖案的控制項一掉**/
+					this.removeChild( libraryControlComp );
+					libraryControlComp = null;
+				}
+				
+				/**如果存在  那就要先移除後再加上去  因為換分頁也會跑他 **/
+				if( libraryControlBlankComp != null )
+				{
+					this.removeChild( libraryControlBlankComp );
+					libraryControlBlankComp = null;
+					
+					/**加入空白的**/
+					libraryControlBlankComp = new compControlGroupBlank();
+					this.addChildAt( this.libraryControlBlankComp , 1);
+				}
+				else
+				{
+					/**加入空白的**/
+					libraryControlBlankComp = new compControlGroupBlank();
+					this.addChildAt( this.libraryControlBlankComp , 1);
+				}
+			}
+			
+			//點下筆
+			private function onPenClick(ev:MouseEvent):void
+			{
+				//trace( ev.currentTarget.name )
+				if( ev.currentTarget.name == "pencilTool" )
+				{
+					pencilToolBtn.styleName = "penTool_1_CSS";
+					eraserBtn.styleName = "eraserTool_0_CSS";
+					clearBtn.styleName = "clearTool_0_CSS";
+				}
+				else
+				{
+					pencilToolBtn.styleName = "penTool_0_CSS";
+					eraserBtn.styleName = "eraserTool_1_CSS";
+					clearBtn.styleName = "clearTool_0_CSS";
+					var e:Event = new Event("evPneSizeChenge",true,true);
+					this.dispatchEvent( e );
+				}
+				
+				
+				var f:Event = new Event("evPencelClick",true,true);
+				this.dispatchEvent( f );
+			}
+			
+			/**change the pen CSS**/
+			public function onPenCssSet():void
+			{
+				if( GameData.isPenUse ) 
+				{
+					pencilToolBtn.styleName = "penTool_1_CSS";
+				}
+				else
+				{
+					pencilToolBtn.styleName = "penTool_0_CSS";
+				}
+			}
+			
+			/**change the eraser CSS***/
+			public function onEraserCssSet():void
+			{
+				if( GameData.isEraserUse )
+				{
+					eraserBtn.styleName = "eraserTool_1_CSS";
+				}
+				else
+				{
+					eraserBtn.styleName = "eraserTool_0_CSS";
+				}
+			}
+			
+			//點下橡皮擦
+			private function onEraserClick(ev:MouseEvent):void
+			{
+				var f:Event = new Event("evEraserClick",true,true);
+				this.dispatchEvent( f );
+			}
+			
+			/**點下library**/
+			private function onLibraryBtnClick(ev:Event):void
+			{
+				var f:Event = new Event("onLibraryClick",true,true);
+				this.dispatchEvent( f );
+			}
+			
+			/**設定library按鈕的CSS**/
+			public function setLibraryCss(isOpen:Boolean):void
+			{
+				if( isOpen )
+				{
+					this.libraryBtn.styleName = "libraryTool_1_CSS";
+				}
+				else
+				{
+					this.libraryBtn.styleName = "libraryTool_0_CSS";
+				}
+			}
+			
+			//點下CLEAR
+			public function clearBoard(e:MouseEvent):void
+			{
+				var d:Event = new Event("onClearBaord",true,true);
+				this.dispatchEvent( d );
+			}
+			
+			//change color
+			private function onPixelValue(ev:Event):void
+			{
+				if( ev.currentTarget.id == "leftRedBtn" )
+				{
+					leftRedBtn.styleName = "BarColorLeftRedCSS_1";
+					rightRedBtn.styleName = "BarColorRightRedCSS_0";
+					leftYellowBtn.styleName = "BarColorLeftYellowCSS_0";
+					rightYellowBtn.styleName = "BarColorRightYellowCSS_0";
+					leftGreenBtn.styleName = "BarColorLeftGreenCSS_0";
+					rightGreenBtn.styleName = "BarColorRightGreenCSS_0";
+					leftBlueBtn.styleName = "BarColorLeftBlueCSS_0";
+					rightBlueBtn.styleName = "BarColorRightBlueCSS_0";
+					whiteBtn.styleName = "BarColorWhiteCSS_0";
+					blackBtn.styleName = "BarColorBlackCSS_0";
+					
+					var leftRedBtnf:Event = new Event("changePneColor",true,true);
+					this.leftRedBtn .dispatchEvent( leftRedBtnf );
+					
+//					GameData.activeColor = 15350307;
+//					GameData.transparent = false;
+				}
+				
+				if( ev.currentTarget.id == "rightRedBtn" )
+				{
+					leftRedBtn.styleName = "BarColorLeftRedCSS_0";
+					rightRedBtn.styleName = "BarColorRightRedCSS_1";
+					leftYellowBtn.styleName = "BarColorLeftYellowCSS_0";
+					rightYellowBtn.styleName = "BarColorRightYellowCSS_0";
+					leftGreenBtn.styleName = "BarColorLeftGreenCSS_0";
+					rightGreenBtn.styleName = "BarColorRightGreenCSS_0";
+					leftBlueBtn.styleName = "BarColorLeftBlueCSS_0";
+					rightBlueBtn.styleName = "BarColorRightBlueCSS_0";
+					whiteBtn.styleName = "BarColorWhiteCSS_0";
+					blackBtn.styleName = "BarColorBlackCSS_0";
+					//
+					var rightRedBtnf:Event = new Event("changePneColor",true,true);
+					this.rightRedBtn .dispatchEvent( rightRedBtnf );
+//					GameData.activeColor = 15350307;
+//					GameData.transparent = true;
+				}
+				
+				if( ev.currentTarget.id == "leftYellowBtn" )
+				{
+					leftRedBtn.styleName = "BarColorLeftRedCSS_0";
+					rightRedBtn.styleName = "BarColorRightRedCSS_0";
+					leftYellowBtn.styleName = "BarColorLeftYellowCSS_1";
+					rightYellowBtn.styleName = "BarColorRightYellowCSS_0";
+					leftGreenBtn.styleName = "BarColorLeftGreenCSS_0";
+					rightGreenBtn.styleName = "BarColorRightGreenCSS_0";
+					leftBlueBtn.styleName = "BarColorLeftBlueCSS_0";
+					rightBlueBtn.styleName = "BarColorRightBlueCSS_0";
+					whiteBtn.styleName = "BarColorWhiteCSS_0";
+					blackBtn.styleName = "BarColorBlackCSS_0";
+					//
+					var leftYellowBtnf:Event = new Event("changePneColor",true,true);
+					this.leftYellowBtn .dispatchEvent( leftYellowBtnf );
+//					
+//					GameData.activeColor = 15858509;
+//					GameData.transparent = false;
+				}
+				
+				if( ev.currentTarget.id == "rightYellowBtn" )
+				{
+					leftRedBtn.styleName = "BarColorLeftRedCSS_0";
+					rightRedBtn.styleName = "BarColorRightRedCSS_0";
+					leftYellowBtn.styleName = "BarColorLeftYellowCSS_0";
+					rightYellowBtn.styleName = "BarColorRightYellowCSS_1";
+					leftGreenBtn.styleName = "BarColorLeftGreenCSS_0";
+					rightGreenBtn.styleName = "BarColorRightGreenCSS_0";
+					leftBlueBtn.styleName = "BarColorLeftBlueCSS_0";
+					rightBlueBtn.styleName = "BarColorRightBlueCSS_0";
+					whiteBtn.styleName = "BarColorWhiteCSS_0";
+					blackBtn.styleName = "BarColorBlackCSS_0";
+					//
+					var rightYellowBtnf:Event = new Event("changePneColor",true,true);
+					this.rightYellowBtn .dispatchEvent( rightYellowBtnf );
+//					
+//					GameData.activeColor = 15858509;
+//					GameData.transparent = true;
+				}
+				
+				if( ev.currentTarget.id == "leftGreenBtn" )
+				{
+					leftRedBtn.styleName = "BarColorLeftRedCSS_0";
+					rightRedBtn.styleName = "BarColorRightRedCSS_0";
+					leftYellowBtn.styleName = "BarColorLeftYellowCSS_0";
+					rightYellowBtn.styleName = "BarColorRightYellowCSS_0";
+					leftGreenBtn.styleName = "BarColorLeftGreenCSS_1";
+					rightGreenBtn.styleName = "BarColorRightGreenCSS_0";
+					leftBlueBtn.styleName = "BarColorLeftBlueCSS_0";
+					rightBlueBtn.styleName = "BarColorRightBlueCSS_0";
+					whiteBtn.styleName = "BarColorWhiteCSS_0";
+					blackBtn.styleName = "BarColorBlackCSS_0";
+					//
+					var leftGreenBtnf:Event = new Event("changePneColor",true,true);
+					this.leftGreenBtn .dispatchEvent( leftGreenBtnf );
+//					
+//					GameData.activeColor = 4357417;
+//					GameData.transparent = false;
+				}
+				
+				if( ev.currentTarget.id == "rightGreenBtn" )
+				{
+					leftRedBtn.styleName = "BarColorLeftRedCSS_0";
+					rightRedBtn.styleName = "BarColorRightRedCSS_0";
+					leftYellowBtn.styleName = "BarColorLeftYellowCSS_0";
+					rightYellowBtn.styleName = "BarColorRightYellowCSS_0";
+					leftGreenBtn.styleName = "BarColorLeftGreenCSS_0";
+					rightGreenBtn.styleName = "BarColorRightGreenCSS_1";
+					leftBlueBtn.styleName = "BarColorLeftBlueCSS_0";
+					rightBlueBtn.styleName = "BarColorRightBlueCSS_0";
+					whiteBtn.styleName = "BarColorWhiteCSS_0";
+					blackBtn.styleName = "BarColorBlackCSS_0";
+					//
+					var rightGreenBtnf:Event = new Event("changePneColor",true,true);
+					this.rightGreenBtn .dispatchEvent( rightGreenBtnf );
+//					
+//					GameData.activeColor = 4357417;
+//					GameData.transparent = true;
+				}
+				
+				if( ev.currentTarget.id == "leftBlueBtn" )
+				{
+					leftRedBtn.styleName = "BarColorLeftRedCSS_0";
+					rightRedBtn.styleName = "BarColorRightRedCSS_0";
+					leftYellowBtn.styleName = "BarColorLeftYellowCSS_0";
+					rightYellowBtn.styleName = "BarColorRightYellowCSS_0";
+					leftGreenBtn.styleName = "BarColorLeftGreenCSS_0";
+					rightGreenBtn.styleName = "BarColorRightGreenCSS_0";
+					leftBlueBtn.styleName = "BarColorLeftBlueCSS_1";
+					rightBlueBtn.styleName = "BarColorRightBlueCSS_0";
+					whiteBtn.styleName = "BarColorWhiteCSS_0";
+					blackBtn.styleName = "BarColorBlackCSS_0";
+					//
+					var leftBlueBtnf:Event = new Event("changePneColor",true,true);
+					this.leftBlueBtn .dispatchEvent( leftBlueBtnf );
+//					
+//					GameData.activeColor = 6247922;
+//					GameData.transparent = false;
+				}
+				
+				if( ev.currentTarget.id == "rightBlueBtn" )
+				{
+					leftRedBtn.styleName = "BarColorLeftRedCSS_0";
+					rightRedBtn.styleName = "BarColorRightRedCSS_0";
+					leftYellowBtn.styleName = "BarColorLeftYellowCSS_0";
+					rightYellowBtn.styleName = "BarColorRightYellowCSS_0";
+					leftGreenBtn.styleName = "BarColorLeftGreenCSS_0";
+					rightGreenBtn.styleName = "BarColorRightGreenCSS_0";
+					leftBlueBtn.styleName = "BarColorLeftBlueCSS_0";
+					rightBlueBtn.styleName = "BarColorRightBlueCSS_1";
+					whiteBtn.styleName = "BarColorWhiteCSS_0";
+					blackBtn.styleName = "BarColorBlackCSS_0";
+					//
+					var rightBlueBtnf:Event = new Event("changePneColor",true,true);
+					this.rightBlueBtn .dispatchEvent( rightBlueBtnf );
+//					
+//					GameData.activeColor = 6247922;
+//					GameData.transparent = true;
+				}
+				
+				if( ev.currentTarget.id == "whiteBtn" )
+				{
+					leftRedBtn.styleName = "BarColorLeftRedCSS_0";
+					rightRedBtn.styleName = "BarColorRightRedCSS_0";
+					leftYellowBtn.styleName = "BarColorLeftYellowCSS_0";
+					rightYellowBtn.styleName = "BarColorRightYellowCSS_0";
+					leftGreenBtn.styleName = "BarColorLeftGreenCSS_0";
+					rightGreenBtn.styleName = "BarColorRightGreenCSS_0";
+					leftBlueBtn.styleName = "BarColorLeftBlueCSS_0";
+					rightBlueBtn.styleName = "BarColorRightBlueCSS_0";
+					whiteBtn.styleName = "BarColorWhiteCSS_1";
+					blackBtn.styleName = "BarColorBlackCSS_0";
+					//
+					var whiteBtnf:Event = new Event("changePneColor",true,true);
+					this.whiteBtn .dispatchEvent( whiteBtnf );
+//					
+//					GameData.activeColor = 16777215;
+//					GameData.transparent = true;
+				}
+				
+				if( ev.currentTarget.id == "blackBtn" )
+				{
+					leftRedBtn.styleName = "BarColorLeftRedCSS_0";
+					rightRedBtn.styleName = "BarColorRightRedCSS_0";
+					leftYellowBtn.styleName = "BarColorLeftYellowCSS_0";
+					rightYellowBtn.styleName = "BarColorRightYellowCSS_0";
+					leftGreenBtn.styleName = "BarColorLeftGreenCSS_0";
+					rightGreenBtn.styleName = "BarColorRightGreenCSS_0";
+					leftBlueBtn.styleName = "BarColorLeftBlueCSS_0";
+					rightBlueBtn.styleName = "BarColorRightBlueCSS_0";
+					whiteBtn.styleName = "BarColorWhiteCSS_0";
+					blackBtn.styleName = "BarColorBlackCSS_1";
+					//
+					var blackBtnf:Event = new Event("changePneColor",true,true);
+					this.blackBtn .dispatchEvent( blackBtnf );
+//					
+//					GameData.activeColor = 0;
+//					GameData.transparent = true;
+				}
+			}
+			
+			private function onChangePenSize(ev:Event):void
+			{
+				if( ev.currentTarget.name == "penSize5" )
+				{
+					this.penSizeBtn1.styleName = "penSize_01_1_CSS";
+					this.penSizeBtn2.styleName = "penSize_02_0_CSS";
+					this.penSizeBtn3.styleName = "penSize_03_0_CSS";
+					this.penSizeBtn4.styleName = "penSize_04_0_CSS";
+					this.penSizeBtn5.styleName = "penSize_05_0_CSS";
+					this.penSizeBtn6.styleName = "penSize_06_0_CSS";
+					
+					var a:Event = new Event("evPneSizeChenge",true,true);
+					penSizeBtn1.dispatchEvent( a );
+				}
+				
+				if( ev.currentTarget.name == "penSize7" )
+				{
+					this.penSizeBtn1.styleName = "penSize_01_0_CSS";
+					this.penSizeBtn2.styleName = "penSize_02_1_CSS";
+					this.penSizeBtn3.styleName = "penSize_03_0_CSS";
+					this.penSizeBtn4.styleName = "penSize_04_0_CSS";
+					this.penSizeBtn5.styleName = "penSize_05_0_CSS";
+					this.penSizeBtn6.styleName = "penSize_06_0_CSS";
+					
+					var c:Event = new Event("evPneSizeChenge",true,true);
+					penSizeBtn2.dispatchEvent( c );
+				}
+				
+				if( ev.currentTarget.name == "penSize10" )
+				{
+					this.penSizeBtn1.styleName = "penSize_01_0_CSS";
+					this.penSizeBtn2.styleName = "penSize_02_0_CSS";
+					this.penSizeBtn3.styleName = "penSize_03_1_CSS";
+					this.penSizeBtn4.styleName = "penSize_04_0_CSS";
+					this.penSizeBtn5.styleName = "penSize_05_0_CSS";
+					this.penSizeBtn6.styleName = "penSize_06_0_CSS";
+					
+					var d:Event = new Event("evPneSizeChenge",true,true);
+					penSizeBtn3.dispatchEvent( d );
+				}
+				
+				if( ev.currentTarget.name == "penSize15" )
+				{
+					this.penSizeBtn1.styleName = "penSize_01_0_CSS";
+					this.penSizeBtn2.styleName = "penSize_02_0_CSS";
+					this.penSizeBtn3.styleName = "penSize_03_0_CSS";
+					this.penSizeBtn4.styleName = "penSize_04_1_CSS";
+					this.penSizeBtn5.styleName = "penSize_05_0_CSS";
+					this.penSizeBtn6.styleName = "penSize_06_0_CSS";
+					
+					var e:Event = new Event("evPneSizeChenge",true,true);
+					penSizeBtn4.dispatchEvent( e );
+				}
+				
+				if( ev.currentTarget.name == "penSize20" )
+				{
+					this.penSizeBtn1.styleName = "penSize_01_0_CSS";
+					this.penSizeBtn2.styleName = "penSize_02_0_CSS";
+					this.penSizeBtn3.styleName = "penSize_03_0_CSS";
+					this.penSizeBtn4.styleName = "penSize_04_0_CSS";
+					this.penSizeBtn5.styleName = "penSize_05_1_CSS";
+					this.penSizeBtn6.styleName = "penSize_06_0_CSS";
+					
+					var f:Event = new Event("evPneSizeChenge",true,true);
+					penSizeBtn5.dispatchEvent( f );
+				}
+				
+				if( ev.currentTarget.name == "penSize25" )
+				{
+					this.penSizeBtn1.styleName = "penSize_01_0_CSS";
+					this.penSizeBtn2.styleName = "penSize_02_0_CSS";
+					this.penSizeBtn3.styleName = "penSize_03_0_CSS";
+					this.penSizeBtn4.styleName = "penSize_04_0_CSS";
+					this.penSizeBtn5.styleName = "penSize_05_0_CSS";
+					this.penSizeBtn6.styleName = "penSize_06_1_CSS";
+					
+					var g:Event = new Event("evPneSizeChenge",true,true);
+					penSizeBtn6.dispatchEvent( g );
+				}
+			}
+			
+			/**當切換橡皮擦或是PEN時會切換大小*/
+			public function changePenSize(penSize:int):void
+			{
+				if( penSize == 5 )
+				{
+					this.penSizeBtn1.styleName = "penSize_01_1_CSS";
+					this.penSizeBtn2.styleName = "penSize_02_0_CSS";
+					this.penSizeBtn3.styleName = "penSize_03_0_CSS";
+					this.penSizeBtn4.styleName = "penSize_04_0_CSS";
+					this.penSizeBtn5.styleName = "penSize_05_0_CSS";
+					this.penSizeBtn6.styleName = "penSize_06_0_CSS";
+				}
+				if( penSize == 7 )
+				{
+					this.penSizeBtn1.styleName = "penSize_01_0_CSS";
+					this.penSizeBtn2.styleName = "penSize_02_1_CSS";
+					this.penSizeBtn3.styleName = "penSize_03_0_CSS";
+					this.penSizeBtn4.styleName = "penSize_04_0_CSS";
+					this.penSizeBtn5.styleName = "penSize_05_0_CSS";
+					this.penSizeBtn6.styleName = "penSize_06_0_CSS";
+				}
+				
+				if( penSize == 10 )
+				{
+					this.penSizeBtn1.styleName = "penSize_01_0_CSS";
+					this.penSizeBtn2.styleName = "penSize_02_0_CSS";
+					this.penSizeBtn3.styleName = "penSize_03_1_CSS";
+					this.penSizeBtn4.styleName = "penSize_04_0_CSS";
+					this.penSizeBtn5.styleName = "penSize_05_0_CSS";
+					this.penSizeBtn6.styleName = "penSize_06_0_CSS";
+				}
+				
+				if( penSize == 15 )
+				{
+					this.penSizeBtn1.styleName = "penSize_01_0_CSS";
+					this.penSizeBtn2.styleName = "penSize_02_0_CSS";
+					this.penSizeBtn3.styleName = "penSize_03_0_CSS";
+					this.penSizeBtn4.styleName = "penSize_04_1_CSS";
+					this.penSizeBtn5.styleName = "penSize_05_0_CSS";
+					this.penSizeBtn6.styleName = "penSize_06_0_CSS";
+				}
+				
+				if( penSize == 20 )
+				{
+					this.penSizeBtn1.styleName = "penSize_01_0_CSS";
+					this.penSizeBtn2.styleName = "penSize_02_0_CSS";
+					this.penSizeBtn3.styleName = "penSize_03_0_CSS";
+					this.penSizeBtn4.styleName = "penSize_04_0_CSS";
+					this.penSizeBtn5.styleName = "penSize_05_1_CSS";
+					this.penSizeBtn6.styleName = "penSize_06_0_CSS";
+				}
+				
+				if( penSize == 25 )
+				{
+					this.penSizeBtn1.styleName = "penSize_01_0_CSS";
+					this.penSizeBtn2.styleName = "penSize_02_0_CSS";
+					this.penSizeBtn3.styleName = "penSize_03_0_CSS";
+					this.penSizeBtn4.styleName = "penSize_04_0_CSS";
+					this.penSizeBtn5.styleName = "penSize_05_0_CSS";
+					this.penSizeBtn6.styleName = "penSize_06_1_CSS";
+				}
+			}
+			
+		]]>
+	</fx:Script>	
+	<fx:Style source="boardCSS.css" />
+	
+	
+	<mx:VBox width="100%" height="180" horizontalAlign="center" verticalGap="2">
+		<mx:Button label="" width="50" height="40" click="onPenClick(event)" id="pencilToolBtn" name="pencilTool" styleName="penTool_1_CSS"/>
+		<mx:Button label="" width="50"  height="40" click="onEraserClick(event)" id="eraserBtn" name="Eraser" styleName="eraserTool_0_CSS"/>
+		<mx:Button label="" width="50"  height="40" click="clearBoard(event)" styleName="clearTool_0_CSS" id="clearBtn"/>
+		<mx:Button label="" width="50"  height="40" styleName="libraryTool_0_CSS" click="onLibraryBtnClick(event)"  id="libraryBtn"/>
+	</mx:VBox>
+	<mx:Button width="59" height="1" label="" visible="true"  styleName="BarBtnCSS" />
+	<!--
+	<mx:VBox width="100%" height="90" verticalGap="0" id="vbxLibraryControlGroup">
+	</mx:VBox>
+	-->
+	<mx:VBox width="100%" height="178" verticalGap="1">
+		<mx:HBox width="100%" height="100%" horizontalAlign="center" horizontalGap="0">
+			<mx:Button label="" width="30" height="30" click="onPixelValue(event)" name="white-16777215-true" id="whiteBtn" styleName="BarColorWhiteCSS_0"/>
+			<mx:Button label="" width="30" height="30" click="onPixelValue(event)" name="black-0-true" id="blackBtn" styleName="BarColorBlackCSS_1"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="100%" horizontalAlign="center" horizontalGap="0">
+			<mx:Button label="" width="30" height="30" click="onPixelValue(event)" name="leftYellow-15858509-false" id="leftYellowBtn" styleName="BarColorLeftYellowCSS_0"/>
+			<mx:Button label="" width="30" height="30" click="onPixelValue(event)" name="rightYellow-15858509-true" id="rightYellowBtn" styleName="BarColorRightYellowCSS_0"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="100%" horizontalAlign="center" horizontalGap="0">
+			<mx:Button label="" width="30" height="30" click="onPixelValue(event)" name="leftGreen-4357417-false" id="leftGreenBtn" styleName="BarColorLeftGreenCSS_0"/>
+			<mx:Button label="" width="30" height="30" click="onPixelValue(event)" name="rightGreen-4357417-true" id="rightGreenBtn" styleName="BarColorRightGreenCSS_0"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="100%" horizontalAlign="center" horizontalGap="0">
+			<mx:Button label="" width="30" height="30" click="onPixelValue(event)" name="leftBlue-6247922-false" id="leftBlueBtn" styleName="BarColorLeftBlueCSS_0"/>
+			<mx:Button label="" width="30" height="30" click="onPixelValue(event)" name="rightBlue-6247922-true" id="rightBlueBtn" styleName="BarColorRightBlueCSS_0"/>
+		</mx:HBox>
+		<mx:HBox width="100%" height="100%" horizontalAlign="center" horizontalGap="0">
+			<mx:Button label="" width="30" height="30" click="onPixelValue(event)" name="leftRed-15350307-false" id="leftRedBtn" styleName="BarColorLeftRedCSS_0"/>
+			<mx:Button label="" width="30" height="30" click="onPixelValue(event)" name="rightRed-15350307-true" id="rightRedBtn" styleName="BarColorRightRedCSS_0"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+	<mx:Button width="59" height="1" label="" visible="true"  styleName="BarBtnCSS" />
+	
+	<mx:VBox width="100%" height="90" verticalGap="0" >
+		<mx:HBox width="100%" height="30" horizontalAlign="center" verticalAlign="middle" horizontalGap="0">
+			<mx:Button label="" width="29" height="29" click="onChangePenSize(event)" name="penSize5" styleName="penSize_01_1_CSS" id="penSizeBtn1"/>
+			<mx:Button label="" width="29" height="29" click="onChangePenSize(event)" name="penSize15" styleName="penSize_04_0_CSS" id="penSizeBtn4"/>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" height="30" horizontalAlign="center" verticalAlign="middle" horizontalGap="0">
+			<mx:Button label="" width="29" height="29" click="onChangePenSize(event)" name="penSize7" styleName="penSize_02_0_CSS" id="penSizeBtn2"/>
+			<mx:Button label="" width="29" height="29" click="onChangePenSize(event)" name="penSize20" styleName="penSize_05_0_CSS" id="penSizeBtn5"/>
+		</mx:HBox>
+		
+		<mx:HBox width="100%" height="30" horizontalAlign="center" verticalAlign="middle" horizontalGap="0">
+			<mx:Button label="" width="29" height="29" click="onChangePenSize(event)" name="penSize10" styleName="penSize_03_0_CSS" id="penSizeBtn3"/>
+			<mx:Button label="" width="29" height="29" click="onChangePenSize(event)" name="penSize25" styleName="penSize_06_0_CSS" id="penSizeBtn6"/>
+		</mx:HBox>
+	</mx:VBox>
+</mx:VBox>

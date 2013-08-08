@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%" height="100%" verticalAlign="bottom" creationComplete="init()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.fzip.*;
+			import com.riaidea.utils.zip.*;
+			import com.riaidea.utils.zip.ZipArchive;
+			import com.riaidea.utils.zip.ZipEvent;
+			import com.riaidea.utils.zip.ZipFile;
+			
+			import flash.events.Event;
+			import flash.events.OutputProgressEvent;
+			import flash.filesystem.*;
+			import flash.filesystem.File;
+			import flash.net.FileFilter;
+			
+			import mx.controls.Image;
+			
+			private var favoDir:File;
+			private var zip:FZip;
+			private var docsDir:File = File.documentsDirectory;
+			private var pptFolder:File ;
+			private var pptFolderName:String ;
+			private var done:Boolean = false;
+			private var index:int = 0;
+			private var ispringFolder:File ;
+			private var flashFolder:File ;
+			
+			
+			private function init():void
+			{
+				vbxSelectShow.visible = false;
+			}
+			
+			//圖片的開啟畫面
+			private function onOpenImageFile():void
+			{
+				favoDir = File.applicationDirectory .resolvePath("assets/gallery/");
+				
+				var sourceFile:File = File.documentsDirectory;
+				var mp3Filter:FileFilter = new FileFilter("Imgae Files", "*.jpg;*.png"); 
+				sourceFile.browseForOpen("Open", [mp3Filter]); 
+				sourceFile.addEventListener(Event.SELECT,onImageFileSelect);
+			}
+			
+			private function onImageFileSelect(ev:Event):void
+			{
+				var file:File = new File(File.applicationDirectory.resolvePath("assets/gallery/" + (ev.target as File).name).nativePath);
+				(ev.target as File).copyToAsync(file , true);
+				(ev.target as File).addEventListener(Event.COMPLETE, assetsImportComp);
+			}
+			
+			private function assetsImportComp(ev:Event):void
+			{
+				//好了就在跑一次素材檢察
+				var a:Event = new Event("assetsImportComp",true,true);
+				this.dispatchEvent( a );
+			}
+			
+			//點下壓縮檔案 PPT USE
+			private function onPptUnZip():void
+			{
+				var sourceFile:File = File.documentsDirectory;
+				var mp3Filter:FileFilter = new FileFilter("*.zip", "*.zip"); 
+				sourceFile.browseForOpen("Select Ppt Zip File", [mp3Filter]); 
+				sourceFile.addEventListener(Event.SELECT,onZipFileSelect);
+			}
+			
+			//點下壓縮檔案 PPT USE
+			private function onIspringUnZip():void
+			{
+				var sourceFile:File = File.documentsDirectory;
+				var mp3Filter:FileFilter = new FileFilter("*.zip", "*.zip"); 
+				sourceFile.browseForOpen("Select Ispring Zip File", [mp3Filter]); 
+				sourceFile.addEventListener(Event.SELECT,onIspringZipFileSelect);
+			}
+			
+			//開啟元件匯入資料夾
+			private function onOpenLibraryFile():void
+			{
+				var sourceFile:File = File.documentsDirectory;
+				var mp3Filter:FileFilter = new FileFilter("*.png,*.jpg", "*.png;*.jpg"); 
+				sourceFile.browseForOpen("Select Image File", [mp3Filter]); 
+				sourceFile.addEventListener(Event.SELECT,onLibraryFileSelect);
+			}
+			
+			private function onOpenVideoFile():void
+			{
+				var sourceFile:File = File.documentsDirectory;
+				var mp3Filter:FileFilter = new FileFilter("*.mp4", "*.mp4;*.png;*.jpg"); 
+				sourceFile.browseForOpen("Select Video File", [mp3Filter]); 
+				sourceFile.addEventListener(Event.SELECT,onVideoFileSelect);
+			}
+			
+			//開啟FLASH檔案
+			private function onOpenFlashFile():void
+			{
+				/*
+				var sourceFile:File = File.documentsDirectory;
+				var mp3Filter:FileFilter = new FileFilter("Imgae Files", "*.swf;*.png;*.jpg"); 
+				sourceFile.browseForOpen("select flashSwf File", [mp3Filter]); 
+				sourceFile.addEventListener(Event.SELECT,onFlashFileSelect);
+				*/
+				var sourceFile:File = File.documentsDirectory;
+				var mp3Filter:FileFilter = new FileFilter("*.zip", "*.zip"); 
+				sourceFile.browseForOpen("Select Flash Zip File", [mp3Filter]); 
+				sourceFile.addEventListener(Event.SELECT,onFlashZipFileSelect);
+			}
+			
+			//選擇VIDEO檔案
+			private function onVideoFileSelect(ev:Event):void
+			{
+				var file:File = new File(File.applicationDirectory.resolvePath("assets/video/" + (ev.target as File).name).nativePath);
+				(ev.target as File).copyToAsync(file , true);
+				(ev.target as File).addEventListener(Event.COMPLETE, assetsImportComp);
+			}
+			
+			//選擇元件檔案
+			private function onLibraryFileSelect(ev:Event):void
+			{
+				var file:File = new File(File.applicationDirectory.resolvePath("assets/library/" + (ev.target as File).name).nativePath);
+				(ev.target as File).copyToAsync(file , true);
+				(ev.target as File).addEventListener(Event.COMPLETE, assetsImportComp);
+			}
+			
+			private var bool:Boolean = true;
+			
+			/**ispring zip file**/
+			private function onIspringZipFileSelect(ev:Event):void
+			{
+				this.ispringFolder = null;
+				ispringFolder = new File(File.applicationDirectory.resolvePath("assets/animation/" + getFileName( (ev.target as File).name )).nativePath);
+				
+				//如果此檔案夾沒有在PPT的目錄裡面
+				if( !ispringFolder.exists )
+				{
+					//產生一個目錄 以方便之後的圖片存放
+					ispringFolder.createDirectory();
+					//Fzip用
+					index = 0;
+					zip = null;
+					zip = new FZip();
+					//zip.addEventListener(Event.OPEN, onOpen);
+					//zip.addEventListener(Event.COMPLETE, onComplete);
+					zip.addEventListener(Event.COMPLETE, onIspringComplete);
+					zip.load(new URLRequest( ev.target.url ));
+				}
+			}
+			
+			/**flash zip file**/
+			private function onFlashZipFileSelect(ev:Event):void
+			{
+				getFileName( (ev.target as File).name );
+				index = 0;
+				zip = null;
+				zip = new FZip();
+				//zip.addEventListener(Event.OPEN, onOpen);
+				//zip.addEventListener(Event.COMPLETE, onComplete);
+				zip.addEventListener(Event.COMPLETE, onFlashComplete);
+				zip.load(new URLRequest( ev.target.url ));
+			}
+			
+			//選擇ZIP檔案
+			private function onZipFileSelect(ev:Event):void
+			{
+				//檢查有沒有該目錄 沒有就要創作一個目錄放PPT檔案
+				//trace((ev.target as File).name)//bg.zip
+				//trace((ev.target as File).nativePath)//bg.zip
+				//trace( (ev.target as File).name );
+				pptFolder = null;
+				pptFolder = new File(File.applicationDirectory.resolvePath("assets/pptSource/" + getFileName( (ev.target as File).name )).nativePath);
+				
+				//如果此檔案夾沒有在PPT的目錄裡面
+				if( !pptFolder.exists )
+				{
+					//產生一個目錄 以方便之後的圖片存放
+					pptFolder.createDirectory();
+					//Fzip用
+					index = 0;
+					zip = null;
+					zip = new FZip();
+					zip.addEventListener(Event.OPEN, onOpen);
+					zip.addEventListener(Event.COMPLETE, onComplete);
+					zip.load(new URLRequest( ev.target.url ));
+				}
+			}
+			
+			private function onOpen(evt:Event):void 
+			{
+				
+			}
+			
+			private function onComplete(evt:Event):void 
+			{
+				//done = true;
+				onFileLoader(evt);
+			}
+			
+			private function onFlashComplete(ev:Event):void
+			{
+				/**要比對一下檔名**/
+				if(  zip.getFileCount() != 2 )
+				{
+					return;
+				}
+				
+				if( !checkFileNameSame() )
+				{
+					return;
+				}
+				
+				if( !checkFileSubsidiaryName() )
+				{
+					return;
+				}
+				
+				for(var i:uint = 0; i < zip.getFileCount() ; i++)
+				{
+					var fzipFile:FZipFile = zip.getFileAt( i );
+					var file1:File = new File( File.applicationDirectory.resolvePath("assets/animation/ " + fzipFile.filename).nativePath );
+					var fileStr:FileStream = new FileStream();
+					fileStr.openAsync(file1, FileMode.UPDATE);
+					fileStr.position = fileStr.bytesAvailable;
+					fileStr .writeBytes(fzipFile.content , 0, fzipFile.content.length );
+					fileStr.close();
+					//fileStr.addEventListener(OutputProgressEvent.OUTPUT_PROGRESS, onUpdataOK);
+					fileStr.addEventListener(Event.CLOSE,onFileLoadComplete);
+				}
+			}
+			
+			// flash file select
+			private function onFlashFileSelect(ev:Event):void
+			{
+				var file:File = new File(File.applicationDirectory.resolvePath("assets/animation/" + (ev.target as File).name).nativePath);
+				(ev.target as File).copyToAsync(file , true);
+				(ev.target as File).addEventListener(Event.COMPLETE, assetsImportComp);
+			}
+			
+			private function onIspringComplete(ev:Event):void
+			{
+				for(var i:uint = 0; i < zip.getFileCount() ; i++)
+				{
+					var fzipFile:FZipFile = zip.getFileAt( i );
+					if( toLowCaseForFileName(fzipFile.filename).indexOf(".swf") != -1)
+					{
+						var file1:File = new File( File.applicationDirectory.resolvePath("assets/ispring/" + pptFolderName + "/" + fzipFile.filename).nativePath );
+						var fileStr:FileStream = new FileStream();
+						fileStr.openAsync(file1, FileMode.UPDATE);
+						fileStr.position = fileStr.bytesAvailable;
+						fileStr .writeBytes(fzipFile.content , 0, fzipFile.content.length );
+						fileStr.close();
+						//fileStr.addEventListener(OutputProgressEvent.OUTPUT_PROGRESS, onUpdataOK);
+						fileStr.addEventListener(Event.CLOSE,onFileLoadComplete);
+					}
+				}
+			}
+			
+			private function onFileLoader(evt:Event):void 
+			{
+				for(var i:uint = 0; i < zip.getFileCount() ; i++)
+				{
+					var fzipFile:FZipFile = zip.getFileAt( i );
+					if( toLowCaseForFileName(fzipFile.filename).indexOf(".png") != -1 || toLowCaseForFileName(fzipFile.filename).indexOf(".jpg") != -1 )
+					{
+						var file1:File = new File( File.applicationDirectory.resolvePath("assets/pptSource/" + pptFolderName + "/" + fzipFile.filename).nativePath );
+						var fileStr:FileStream = new FileStream();
+						fileStr.openAsync(file1, FileMode.UPDATE);
+						fileStr.position = fileStr.bytesAvailable;
+						fileStr .writeBytes(fzipFile.content , 0, fzipFile.content.length );
+						fileStr.close();
+						//fileStr.addEventListener(OutputProgressEvent.OUTPUT_PROGRESS, onUpdataOK);
+						fileStr.addEventListener(Event.CLOSE,onFileLoadComplete);
+					}
+				}
+			}
+			
+			private function onFileLoadComplete(ev:Event):void
+			{
+				( ev.target as FileStream ).removeEventListener(Event.CLOSE,onFileLoadComplete );
+				this.index++;
+				//好了就在跑一次素材檢察
+				if( this.index == zip.getFileCount() )
+				{
+					var a:Event = new Event("assetsImportComp",true,true);
+					this.dispatchEvent( a );
+				}
+			}
+			
+			//把黨名 bg.zip 拆出來 變成  bg
+			private function getFileName(allFileName:String):String
+			{
+				var splitStr:Array = allFileName.split(".");
+				pptFolderName = splitStr[0];
+				return (splitStr[0]);
+			}
+			
+			
+			
+			//開啟選項
+			private function onShowOpenFile():void
+			{
+				if( vbxSelectShow.visible )
+				{
+					vbxSelectShow.visible = false;
+				}
+				else
+				{
+					vbxSelectShow.visible = true;
+				}
+			}
+			
+			/**將丟入的檔案名稱(包含副檔名) 對副檔名進行轉小寫動作**/
+			private function toLowCaseForFileName(fileName:String):String
+			{
+				/**先分離出副檔名**/
+				var _arFileName:Array = fileName.split(".");
+				
+				/**轉換成小寫副檔名後再過接回去回傳**/
+				//trace( (String(_arFileName[0]) + "." + String(_arFileName[1]).toLowerCase()) );
+				
+				return (String(_arFileName[0]) + "." + String(_arFileName[1]).toLowerCase());
+			}
+			
+			/**抓取檔名(沒有附檔名)**/
+			private function getFileName_(fileName:String):String
+			{
+				/**先分離出副檔名**/
+				var _arFileName:Array = fileName.split(".");
+				
+				return String(_arFileName[0]);
+			}
+			
+			/**抓取副檔名(沒有檔名)**/
+			private function getSubsidiaryFileName(fileName:String):String
+			{
+				/**先分離出副檔名**/
+				var _arFileName:Array = fileName.split(".");
+				
+				return String(_arFileName[1]).toLowerCase();
+			}
+			
+			/**判斷檔名是否一樣**/
+			private function checkFileNameSame():Boolean
+			{
+				var _fileName1:String = "";
+				var _fileName2:String = "";
+				
+				for(var i:uint = 0; i < zip.getFileCount() ; i++)
+				{
+					var fzipFile_:FZipFile = zip.getFileAt( i );
+					if( i == 0 )
+					{
+						_fileName1 = getFileName_(fzipFile_.filename);
+					}
+					else
+					{
+						_fileName2 = getFileName_(fzipFile_.filename);
+					}
+				}
+				
+				if( _fileName1 === _fileName2)
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			
+			/**判斷副檔名是否合適**/
+			private function checkFileSubsidiaryName():Boolean
+			{
+				var pngCount:int = 0;
+				var swfCount:int = 0;
+				
+				var _fileName:String = "";
+				for(var i:uint = 0; i < zip.getFileCount() ; i++)
+				{
+					var fzipFile_:FZipFile = zip.getFileAt( i );
+					if( toLowCaseForFileName(fzipFile_.filename).indexOf(".swf") != -1)
+					{
+						swfCount++;
+					}
+					
+					if( toLowCaseForFileName(fzipFile_.filename).indexOf(".png") != -1 || toLowCaseForFileName(fzipFile_.filename).indexOf(".jpg") != -1 )
+					{
+						pngCount++;
+					}
+				}
+				
+				if( pngCount != 1)
+				{
+					return false;
+				}
+				
+				if( swfCount != 1)
+				{
+					return false;
+				}
+				
+				return true;
+			}
+
+		]]>
+	</fx:Script>
+	
+	<fx:Style source="boardCSS.css" />
+	
+	<mx:VBox id="vbxSelectShow">
+		<mx:Button label="" width="68" height="20" styleName="pptImportIspringBtn_0_CSS" click="onIspringUnZip()"/>
+		<mx:Button label="" width="68" height="20" styleName="pptImportVideoBtn_0_CSS" click="onOpenVideoFile()"/>
+		<mx:Button label="" click="onOpenFlashFile()" width="68" height="20" styleName="pptImportFlashBtn_0_CSS"/>
+		<mx:Button label="" click="onOpenImageFile()" width="68" height="20" styleName="pptImportImageBtn_0_CSS"/>
+		<mx:Button label=""  width="68" height="20" styleName="pptImportLibraryBtn_0_CSS" click="onOpenLibraryFile()"/>
+		<mx:Button label="" click="onPptUnZip()" width="68" height="20" styleName="pptImportPptBtn_0_CSS"/>
+	</mx:VBox>
+	
+	<mx:VBox>
+		<mx:Button label="" width="30" height="30" click="onShowOpenFile()" styleName="pptImportContralBtn_0_CSS"/>
+	</mx:VBox>
+	<mx:VBox y="513" height="0">
+	</mx:VBox>
+</mx:VBox>

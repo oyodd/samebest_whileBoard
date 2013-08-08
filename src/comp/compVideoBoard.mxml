@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" width="1360" height="768"
+		   xmlns:comp="comp.*" 
+		   xmlns:com="com.*" backgroundColor="#EBCA81"  creationComplete="init()"
+		   >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			import com.*;
+			import mx.core.UIComponent;
+			import mx.controls.Image;
+			
+			/**這個頁面有沒有打開TILE的設定值**/
+			public var isImageTileUse:Boolean = false;
+			
+			private var boardNew:boardMainClass;
+			
+			private function init():void
+			{
+				/**由於指定背景樣式 所以在這邊先放一張圖片當作背景**/
+				var backGround:Image = new Image();
+				backGround.source = pathConst.BACKGROUN_IMAGE_PATH;
+				this.addChild( backGround );
+				
+				//實作畫板
+				boardNew = new boardMainClass(1290,728);
+				GameData.allBoardCollection.push( boardNew );
+				boardNew.parentName = this.name;
+				boardNew.parentType = "video";
+				
+				boardNew.parentName = this.name;
+				var e:UIComponent = new UIComponent();
+				e.name = "not";
+				e.addChild( boardNew );
+				this.addChild( e );
+				
+				/**因為video要放要把它放進cav裡面 先這樣寫**/
+				GameData.videoCavShow = this;
+			}
+			
+			/**開始撥放檔案**/
+			public function setBackGround(loadPath:String):void
+			{
+				this.boardNew.videoLoader( loadPath );
+			}
+			
+			/**把自己的board傳出去**/
+			public function getBaordInstance():boardMainClass
+			{
+				return boardNew;
+			}
+			
+		]]>
+	</fx:Script>
+</mx:Canvas>

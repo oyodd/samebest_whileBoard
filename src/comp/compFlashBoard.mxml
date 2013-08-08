@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   xmlns:comp="comp.*" 
+		   xmlns:com="com.*"  width="1360" height="768" backgroundColor="#EBCA81"  creationComplete="init()"
+		   >
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import com.*;
+			import mx.controls.Button;
+			import mx.controls.Image;
+			import mx.core.UIComponent;
+			
+			/**這個頁面有沒有打開TILE的設定值**/
+			public var isImageTileUse:Boolean = false;
+			
+			private var boardNew:boardMainClass;
+			
+			private function init():void
+			{
+				/**由於指定背景樣式 所以在這邊先放一張圖片當作背景**/
+				var backGround:Image = new Image();
+				backGround.source = pathConst.BACKGROUN_IMAGE_PATH;
+				backGround.width = 1360;
+				backGround.height = 768 ;
+				this.addChild( backGround );
+				//實作畫板
+				//boardNew = new boardMainClass(1290,728);
+				boardNew = new boardMainClass(1290,724);
+				GameData.allBoardCollection.push( boardNew );
+				boardNew.parentName = this.name;
+				boardNew.parentType = "flash";
+			
+				boardNew.parentName = this.name;
+				var e:UIComponent = new UIComponent();
+				e.addChild( boardNew );
+				this.addChild( e );
+				//
+				this.addEventListener("leftFlashPptButtonClcik",leftFlashPptButtonClcik);
+				//
+				this.addEventListener("rightFlashPptButtonClcik",rightFlashPptButtonClcik);
+				//
+				this.addEventListener("leftFlashAs3ButtonClcik",leftFlashAs3ButtonClcik);
+				//
+				this.addEventListener("rightFlashAs3ButtonClcik",rightFlashAs3ButtonClcik);
+				
+				/**控制投影片的元件位置**/
+				flashPptControlBtnComp.x = -500;
+				flashPptControlBtnComp.y = -500;
+				flashAs3ControlBtnComp.x = -500;
+				flashAs3ControlBtnComp.y = -500;
+				if( this.numChildren >= 1 )
+				{
+					this.setChildIndex(flashPptControlBtnComp,this.numChildren - 1 );
+				}
+				
+				if( this.numChildren >= 1 )
+				{
+					this.setChildIndex(flashAs3ControlBtnComp,this.numChildren - 1 );
+				}
+				/*
+				var a:Button = new Button();
+				a.width = 100;
+				a.height = 100;
+				this.addChild( a );
+				this.setChildIndex(a,this.numChildren - 1 );
+				a.addEventListener(MouseEvent.CLICK,onclick);
+				*/
+			}
+			
+			private function onclick(ev:Event):void
+			{
+				var lc:LocalConnection = new LocalConnection();
+				lc.send("connectionName", "sayHello", "John Smith");
+			}
+			
+			public function setFlashAs3ControlCompOut():void
+			{
+				flashAs3ControlBtnComp.x = -500; 
+				flashAs3ControlBtnComp.y = -500;
+			}
+			
+			public function setFlashAs3ControlCompIn():void
+			{
+				flashAs3ControlBtnComp.x = 800; 
+				flashAs3ControlBtnComp.y = 685;
+			}
+			
+			public function setFlashPptControlCompOut():void
+			{
+				flashPptControlBtnComp.x = -500; 
+				flashPptControlBtnComp.y = -500;
+			}
+			
+			public function setFlashPptControlCompIn():void
+			{
+				flashPptControlBtnComp.x = 800; 
+				flashPptControlBtnComp.y = 685;
+			}
+			
+			private function leftFlashAs3ButtonClcik(ev:Event):void
+			{
+				this.boardNew.onAs3McPrevFrame();
+			}
+			
+			private function rightFlashAs3ButtonClcik(ev:Event):void
+			{
+				this.boardNew.onAs3McNextFrame();
+			}
+			
+			/**設定layer層的上下**/
+			public function setActiveLayer(firstActiveLayerName:String):void
+			{
+				this.boardNew.activeLayer( firstActiveLayerName );
+			}
+			
+			/**把自己的board傳出去**/
+			public function getBaordInstance():boardMainClass
+			{
+				return boardNew;
+			}
+			
+			/**開始撥放檔案**/
+			public function setBackGround(loadPath:String):void
+			{
+				/**播放新影片要清空畫板**/
+				this.boardNew.clearDrawBoard();
+				/**一般的**/
+				this.boardNew.backGroundLoader( loadPath );
+				/**PPT的*/
+				//this.boardNew.iSpringBackGoundLoader( loadPath );
+			}
+			
+			/**換下一個ppt的動作(飛入)**/
+			private function leftFlashPptButtonClcik(ev:Event):void
+			{
+				/**由於是自己的事件 所以可以用自己的board**/
+				this.boardNew.onPlaySliderClickPrevious();
+			}
+			
+			/**上一個動作(消除)**/
+			private function rightFlashPptButtonClcik(ev:Event):void
+			{
+				this.boardNew.onPlaySliderClickNext();
+			}
+			
+		]]>
+	</fx:Script>
+	<comp:compFlashPptControlButton id="flashPptControlBtnComp">
+	</comp:compFlashPptControlButton>
+	
+	<comp:compFlashAs3ControlButton id="flashAs3ControlBtnComp">
+		
+	</comp:compFlashAs3ControlButton>
+</mx:Canvas>

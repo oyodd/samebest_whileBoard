@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:comp="comp.*" 
+		 width="74" height="768" creationComplete="init()" backgroundColor="#AA9B95" styleName="drawBoardGroundCSS">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			[Bindable]
+			public var showMessage:String ;
+			
+			private function init():void
+			{
+				compMainTool.x = 0;
+				compMainTool.y = 10;
+				
+				drawTool.x = 0;
+				drawTool.y = compMainTool.height + 20;
+				trace( this.height )
+			}
+			
+			/**改變左上角BUTTON的ICON**/
+			public function setMainTitle(showMessage:String):void
+			{
+				if( showMessage == "ppt" )
+				{
+					compMainTool.changePageToChangeIcon("ppt");
+				}
+				//
+				if( showMessage == "flash" )
+				{
+					compMainTool.changePageToChangeIcon("flash");
+				}
+				//
+				if( showMessage == "image" )
+				{
+					compMainTool.changePageToChangeIcon("image");
+				}
+				//
+				if( showMessage == "video" )
+				{
+					compMainTool.changePageToChangeIcon("video");
+				}
+				//
+				{
+				if( showMessage == "ispring" )
+					compMainTool.changePageToChangeIcon("ispring");
+				}
+			}
+			
+			
+			// 548  660
+		]]>
+	</fx:Script>
+	
+	<fx:Style source="boardCSS.css" />
+	
+	<mx:Button x="0" y="0" styleName="mainDrawBoardCSS" width="70" height="548" id="mainDrawBoard">
+		
+	</mx:Button>
+	<comp:compMainToolBar id="compMainTool" height="58">
+		
+	</comp:compMainToolBar>
+	
+	<comp:compDrawTool id="drawTool" >
+		
+	</comp:compDrawTool>
+	
+	<comp:compLeftDownImportFileButton>
+		
+	</comp:compLeftDownImportFileButton>
+	
+</mx:Canvas>

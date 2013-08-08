@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   xmlns:comp="comp.*" 
+		   xmlns:com="com.*"  width="1360" height="768" backgroundColor="#EBCA81"  creationComplete="init()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			
+			import com.*;
+			
+			import ispring.presenter.PlayerContainerEvent;
+			import ispring.presenter.player.events.PresentationPlaybackEvent;
+			
+			import mx.controls.Button;
+			import mx.controls.Image;
+			import mx.core.UIComponent;
+			
+			private var boardNew:boardMainClass;
+			
+			//ppt 當前所使用的頁面名稱  == UiSkin的NAME
+			public var currentPptImageName:String = "";
+			/**當前頁數的num 從0開始**/
+			private var ipresentationCurrentPage:int = 0;
+			/**之前頁數的num 從0開始**/
+			private var ipresentationPrePage:int = 0;
+			//拉BAR要用的數值
+			private var iSkinHeigthToScroll:int = 102;
+			/**當前投影片的step*/
+			private var iSliderCurrentStepNum:int = 0;
+			/**當前投影片資料夾的名稱**/
+			private var theCurrentSlideFolderName:String = "";
+			/*****/
+			private var theCurrentTileName:String = "";
+			private var thePreTileName:String = "";
+			private var bool:Boolean = false;
+			
+			private function init():void
+			{
+				/**由於指定背景樣式 所以在這邊先放一張圖片當作背景**/
+				
+				var backGround:Image = new Image();
+				backGround.source = pathConst.BACKGROUN_IMAGE_PATH;
+				backGround.width = 1360;
+				backGround.height = 768 ;
+				this.addChildAt( backGround , 0);
+				
+				/*
+				trace( this.numChildren );
+				trace( this.numElements );
+				*/
+				boardNew = new boardMainClass(1150,724);
+				GameData.allBoardCollection.push( boardNew );
+				boardNew.parentName = this.name;
+				boardNew.parentType = "ispring";
+				
+				boardNew.parentName = this.name;
+				var e:UIComponent = new UIComponent();
+				e.addChild( boardNew );
+				this.addChild( e );
+				setPptFolder();
+				
+				e.x = tileShow.width ;
+				
+				if( this.numChildren >= 1 )
+				{
+					this.setChildIndex(flashPptControlBtnComp,this.numChildren - 1 );
+				}
+				
+				flashPptControlBtnComp.x = 800; 
+				flashPptControlBtnComp.y = 685;
+				
+				loadAssets();
+				
+				this.addEventListener("leftFlashPptButtonClcik",leftFlashPptButtonClcik); 
+				this.addEventListener("rightFlashPptButtonClcik",rightFlashPptButtonClcik);
+				this.addEventListener("sliderChangeToNext",sliderChangeToNext);
+				this.addEventListener("sliderLoadComplete",sliderLoadComplete);
+				this.addEventListener("sliderChangeToPre",sliderChangeToPre);
+				this.addEventListener("sliderChange" , onSliderChange );
+			}
+			
+			public function loadAssets():void
+			{
+				tileShow.verticalScrollPosition = 0;
+				GameData.loaderReference.fileLoader("ispring");
+				setPptFolder();
+			}
+			
+			public function setPptFolder():void
+			{
+				tileShow.removeAllChildren();
+				clearAllFrame();
+				
+				for( var i:int =0 ; i< GameData.loaderReference.arAllTileInformation.length ; i++ )
+				{
+					if( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).theVoType == "ispring" )
+					{
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(MouseEvent.CLICK,onFolderClick);
+						/**將ispring的首頁給換到第一個動作**/
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).recoverIspringStep();
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(MouseEvent.RIGHT_CLICK,onShowCloseBtn);
+						( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).closeButton as closeBtn).addEventListener(MouseEvent.CLICK,onCloseBtnClick);
+						tileShow.addChild( GameData.loaderReference.arAllTileInformation[i] );
+					}
+				}
+			}
+			
+			private  function onFolderClick(ev:MouseEvent):void
+			{
+				//removeBaord();
+				theCurrentSlideFolderName = ev.currentTarget.folderName;
+				GameData.loaderReference.fileLoader("ispringItem",ev.currentTarget.folderName);
+				tileShow.removeAllChildren();
+				ipresentationCurrentPage = 0;
+				setPptImageTile(ev.currentTarget.folderName);
+				/**下載右方ppt的目標**/
+				//setPresenterInBackGround("assets/ispring/" + ev.currentTarget.folderName + "/inOne/" + ev.currentTarget.folderName + ".swf");
+				/**直接顯示第一頁投影片**/
+				setPresenterInBackGround("assets/ispring/" + ev.currentTarget.folderName + "/slide1.swf");
+				/**避免資料夾過多改變了PPT頁面bor的位置**/
+				tileShow.verticalScrollPosition = 0;
+			}
+			
+			/**開啟關閉按鈕**/
+			private function onShowCloseBtn(ev:Event):void
+			{
+				( ev.currentTarget as AdvanceUIComponent ).openCloseButton();
+			}
+			
+			/**清空畫面的board**/
+			private function removeBaord():void
+			{
+				for( var i:int = 0 ;i < this.numChildren ; i++ )
+				{
+					if( this.getChildAt( i ).name != "tileShow" && this.getChildAt( i ).name != "flashPptControlBtnComp")
+					{
+						this.removeChildAt( i );
+					}
+				}
+			}
+			
+			/**填入左方方框**/
+			private function setPptImageTile(firstPageName:String):void
+			{
+				var bool:Boolean = true;
+				
+				for( var i:int =0 ; i< GameData.loaderReference.arAllTileInformation.length ; i++ )
+				{
+					if( firstPageName == (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).folderName )
+					{
+						if( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).theVoType == "ispringItem" )
+						{
+							if( bool )
+							{
+								bool = false;
+								currentPptImageName = (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).name ;
+								setTargetRedFrame();
+							}
+							( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).addEventListener(MouseEvent.CLICK,onPptImageClick);
+							tileShow.addChild( GameData.loaderReference.arAllTileInformation[i] );
+						}
+					}
+				}
+				
+				/**最後要加上一個空格的 因為會消失**/
+				var emptyUiSkin:UIComponent = new UIComponent();
+				tileShow.addChild( emptyUiSkin );
+			}
+			
+			
+			/**ppt頁面被點到**/
+			private function onPptImageClick(ev:MouseEvent):void
+			{
+				/**點到同一個投影片 紅色目標框留著 綠色框不要顯示**/
+				if( currentPptImageName == ev.currentTarget.name )
+				{
+					clearAllFrame();
+					setTargetRedFrame();
+					return;
+				}
+				
+				//trace( (boardNew as boardMainClass).container.player.slide.index );
+				
+				/**紀錄目前頁面的index 紀錄前頁的index */
+				
+				//紀錄上一個頁面的name
+				/**抓到目前頁面的name**/
+				this.ipresentationPrePage = ipresentationCurrentPage;
+				
+				for( var i:int =0 ; i< GameData.loaderReference.arAllTileInformation.length ; i++ )
+				{
+					if( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).name == ev.currentTarget.name )
+					{
+						currentPptImageName = (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).name ;
+						ipresentationCurrentPage = (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).pptPageOrderNumber ;
+					}
+				}
+				
+				setTileBar( ipresentationCurrentPage );
+				
+				clearAllFrame();
+				setTargetRedFrame();
+				setPreRedFrame();
+				
+				/**這一定要擺最下面  因為切換頁面會跑  onSliderChange 事件 所以會更改了index **/
+				//gotoSetPage( ipresentationCurrentPage );
+				setPresenterInBackGround("assets/ispring/" + theCurrentSlideFolderName + "/slide" + (ipresentationCurrentPage+1) + ".swf");
+			}
+			
+			/**當有換頁 進行改變currentIndex**/
+			/**剛進來會跑 更新頁面會跑 **/
+			private function onSliderChange(ev:Event):void
+			{
+//				this.ipresentationPrePage = ipresentationCurrentPage;
+//				ipresentationCurrentPage = (boardNew as boardMainClass).m_playbackController.currentSlideIndex ;
+//				setTileBar( ipresentationCurrentPage );
+//				
+//				if( this.ipresentationCurrentPage == this.ipresentationPrePage)
+//				{
+//					return;
+//				}
+//				//trace( (boardNew as boardMainClass).m_playbackController.currentSlideIndex);
+//				/**表示按下的是上一頁*/
+//				if( ipresentationCurrentPage > (boardNew as boardMainClass).m_playbackController.currentSlideIndex )
+//				{
+//					//pptPageOrderNumber
+//					this.ipresentationPrePage = ipresentationCurrentPage;
+//					ipresentationCurrentPage = (boardNew as boardMainClass).m_playbackController.currentSlideIndex ;
+//					clearAllFrame();
+//					setTargetRedFrame();
+//					setPreRedFrame();
+//				}
+//				
+//				/**抓到目前頁面的name**/
+//				for( var i:int =0 ; i< GameData.loaderReference.arAllTileInformation.length ; i++ )
+//				{
+//					if( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).pptPageOrderNumber == ipresentationCurrentPage )
+//					{
+//						currentPptImageName = (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).name ;
+//					}
+//				}
+//				
+//				clearAllFrame();
+//				setTargetRedFrame();
+//				setPreRedFrame();
+			}
+			
+			/**更換下一張slide**/
+			private function sliderChangeToNext(ev:Event):void
+			{
+				//trace( (boardNew as boardMainClass).container.player.slide.index );
+				//trace( GameData.iCurrentPresentSlideCount );//17
+				//this.ipresentationPrePage = ipresentationCurrentPage;
+				//ipresentationCurrentPage = (boardNew as boardMainClass).container.player.slide.index ;
+				//setTileBar( ipresentationCurrentPage );
+				setPresenterInBackGround("assets/ispring/" + theCurrentSlideFolderName + "/slide" + ((boardNew as boardMainClass).container.player.slide.index+2) + ".swf");
+			}
+			
+			/**更換上一張slide**/
+			private function sliderChangeToPre(ev:Event):void
+			{
+				setPresenterInBackGround("assets/ispring/" + theCurrentSlideFolderName + "/slide" + ((boardNew as boardMainClass).container.player.slide.index) + ".swf");
+			}
+			
+			private function sliderLoadComplete(ev:Event):void
+			{
+				//trace((boardNew as boardMainClass).container)
+				//trace( (boardNew as boardMainClass).container.player.slide.index );
+				//trace( "complete" );
+				this.ipresentationPrePage = ipresentationCurrentPage;
+				ipresentationCurrentPage = (boardNew as boardMainClass).container.player.slide.index ;
+				setTileBar( ipresentationCurrentPage );
+				
+				if( this.ipresentationCurrentPage == this.ipresentationPrePage)
+				{
+					return;
+				}
+				
+				/**抓到目前頁面的name**/
+				for( var i:int =0 ; i< GameData.loaderReference.arAllTileInformation.length ; i++ )
+				{
+					if( (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).pptPageOrderNumber == ipresentationCurrentPage )
+					{
+						currentPptImageName = (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).name ;
+					}
+				}
+				
+				clearAllFrame();
+				setTargetRedFrame();
+				setPreRedFrame();
+			}
+			
+			/**清除目前所有的外框**/
+			private function clearAllFrame():void
+			{
+				for( var i:int = 0; i<GameData.loaderReference.arAllTileInformation.length ; i++)
+				{
+					/**表示是ppt的內頁**/
+					if( ( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).theVoType == "ispringItem" && (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).folderName ==  theCurrentSlideFolderName)
+					{
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).hideAllFrame();
+					}
+				}
+			}
+			
+			/**把當前的紅色框建立**/
+			private function setTargetRedFrame():void
+			{
+				for( var i:int = 0; i<GameData.loaderReference.arAllTileInformation.length ; i++)
+				{
+					/**表示是ppt的內頁**/
+					if( ( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).pptPageOrderNumber == this.ipresentationCurrentPage && (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).folderName ==  theCurrentSlideFolderName)
+					{
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).setRedTargetFrameOpen();
+						return;
+					}
+				}
+			}
+			
+			/**把之前的綠色框建立**/
+			private function setPreRedFrame():void
+			{
+				for( var i:int = 0; i<GameData.loaderReference.arAllTileInformation.length ; i++)
+				{
+					/**表示是ppt的內頁**/
+					if( ( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).pptPageOrderNumber == this.ipresentationPrePage && (GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).folderName ==  theCurrentSlideFolderName)
+					{
+						( GameData.loaderReference.arAllTileInformation[i] as AdvanceUIComponent ).setGreenPreFrameOpen();
+						return;
+					}
+				}
+			}
+			
+			/**換下一個ppt的動作(飛入)**/
+			private function leftFlashPptButtonClcik(ev:Event):void
+			{
+				/**由於是自己的事件 所以可以用自己的board**/
+				this.boardNew.onPlaySliderClickPrevious();
+				iSliderCurrentStepNum++;
+			}
+			
+			/**上一個動作(消除)**/
+			private function rightFlashPptButtonClcik(ev:Event):void
+			{
+				this.boardNew.onPlaySliderClickNext();
+			}
+			
+			/**跳至指定頁面**/
+			private function gotoSetPage(pageNum:int):void
+			{
+				boardNew.gotoSlider( pageNum );
+			}
+			
+			/**把投影片的單檔案丟進去控制*/
+			private function setPresenterInBackGround(loadPath:String):void
+			{
+				/**播放新影片要清空畫板**/
+				this.boardNew.clearDrawBoard();
+				/**一般的**/
+				this.boardNew.backGroundLoader( loadPath );
+			}
+			
+			/**把自己的board傳出去**/
+			public function getBaordInstance():boardMainClass
+			{
+				return boardNew;
+			}
+			
+			/**設定目前頁數的拉bar**/
+			private function setTileBar(currentPageNumber:int):void
+			{
+				//trace( currentPageNumber )
+				if( currentPageNumber >= 3 )
+				{
+					tileShow.verticalScrollPosition = iSkinHeigthToScroll * ( currentPageNumber - 3 );
+				}
+			}
+			
+			private  function onCloseBtnClick(ev:MouseEvent):void
+			{
+				mx.core.FlexGlobals.topLevelApplication.onCloseBtnClick( ev );
+			}
+			
+		]]>
+	</fx:Script>
+	<!-- 左邊放TILE -->
+	<com:AdvanceTile id="tileShow" paddingTop="5"  verticalGap="8">
+	</com:AdvanceTile>
+	
+	<comp:compFlashPptControlButton id="flashPptControlBtnComp">
+	</comp:compFlashPptControlButton>
+</mx:Canvas>

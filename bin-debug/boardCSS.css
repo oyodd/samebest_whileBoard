@@ -1,0 +1,581 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+	.imgBtnCSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="photo64x50_mc");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="photo64x50_mc");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="photo64x50_mc");
+	}
+
+	.penBtnCSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pen64x50_mc");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pen64x50_mc");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pen64x50_mc");
+	}
+	
+	.PptBtnCSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="ppt64x50_mc");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="ppt64x50_mc");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="ppt64x50_mc");
+	}
+
+	.VedioBtnCSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="video64x50_mc");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="video64x50_mc");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="video64x50_mc");
+	}
+
+	.AnimationBtnCSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="flash64x50_mc");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="flash64x50_mc");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="flash64x50_mc");
+	}
+
+	.IspringBtnCSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="ispring64x50_mc");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="ispring64x50_mc");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="ispring64x50_mc");
+	}
+
+	.BarBtnCSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="bar_mc");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="bar_mc");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="bar_mc");
+	}
+	
+	.BarColorLeftRedCSS_0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="red_left_0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="red_left_0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="red_left_0");
+	}
+	.BarColorLeftRedCSS_1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="red_left_1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="red_left_1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="red_left_1");
+	}
+
+
+	.BarColorRightRedCSS_0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="red_right_0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="red_right_0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="red_right_0");
+	}
+
+	.BarColorRightRedCSS_1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="red_right_1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="red_right_1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="red_right_1");
+	}
+
+
+	.BarColorLeftYellowCSS_0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="yellow_left_0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="yellow_left_0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="yellow_left_0");
+	}
+
+	.BarColorLeftYellowCSS_1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="yellow_left_1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="yellow_left_1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="yellow_left_1");
+	}
+
+
+	.BarColorRightYellowCSS_0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="yellow_right_0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="yellow_right_0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="yellow_right_0");
+	}
+
+	.BarColorRightYellowCSS_1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="yellow_right_1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="yellow_right_1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="yellow_right_1");
+	}
+
+
+	.BarColorLeftGreenCSS_0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="green_left_0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="green_left_0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="green_left_0");
+	}
+
+	.BarColorLeftGreenCSS_1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="green_left_1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="green_left_1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="green_left_1");
+	}
+
+
+	.BarColorRightGreenCSS_0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="green_right_0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="green_right_0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="green_right_0");
+	}
+
+	.BarColorRightGreenCSS_1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="green_right_1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="green_right_1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="green_right_1");
+	}
+
+	.BarColorLeftBlueCSS_0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="blue_left_0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="blue_left_0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="blue_left_0");
+	}
+
+	.BarColorLeftBlueCSS_1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="blue_left_1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="blue_left_1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="blue_left_1");
+	}
+
+	.BarColorRightBlueCSS_0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="blue_right_0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="blue_right_0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="blue_right_0");
+	}
+
+	.BarColorRightBlueCSS_1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="blue_right_1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="blue_right_1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="blue_right_1");
+	}
+
+	.BarColorWhiteCSS_0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="white_0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="white_0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="white_0");
+	}
+
+	.BarColorWhiteCSS_1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="white_1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="white_1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="white_1");
+	}
+
+	.BarColorBlackCSS_0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="black_0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="black_0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="black_0");
+	}
+
+	.BarColorBlackCSS_1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="black_1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="black_1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="black_1");
+	}
+
+	.penSize_01_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush01_0_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush01_0_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush01_0_new");
+	}
+
+	.penSize_01_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush01_1_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush01_1_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush01_1_new");
+	}
+
+	.penSize_02_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush02_0_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush02_0_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush02_0_new");
+	}
+
+	.penSize_02_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush02_1_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush02_1_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush02_1_new");
+	}
+
+	.penSize_03_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush03_0_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush03_0_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush03_0_new");
+	}
+
+	.penSize_03_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush03_1_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush03_1_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush03_1_new");
+	}
+
+
+	.penSize_04_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush04_0_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush04_0_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush04_0_new");
+	}
+
+	.penSize_04_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush04_1_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush04_1_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush04_1_new");
+	}
+
+	.penSize_05_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush05_0_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush05_0_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush05_0_new");
+	}
+
+	.penSize_05_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush05_1_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush05_1_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush05_1_new");
+	}
+
+	.penSize_06_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush06_0_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush06_0_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush06_0_new");
+	}
+
+	.penSize_06_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush06_1_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush06_1_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="brush06_1_new");
+	}
+
+	.penTool_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_pen_0_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_pen_0_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_pen_0_new");
+	}
+
+	.penTool_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_pen_1_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_pen_1_new");	
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_pen_1_new");
+	}
+
+	.eraserTool_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_eraser_0_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_eraser_0_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_eraser_0_new");
+	}
+
+	.eraserTool_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_eraser_1_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_eraser_1_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_eraser_1_new");
+	}
+
+
+
+	.clearTool_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_clear_0_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_clear_0_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_clera_1_new");
+	}
+	
+	.libraryTool_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_library_0_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_library_0_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_library_0_new");
+	}
+
+
+	.libraryTool_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_library_1_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_library_1_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="deawToolNew_library_1_new");
+	}
+
+	.pptRightBtnCSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptRightBtn_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptRightBtn_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptRightBtn_new");
+	}
+	
+	
+	.pptLeftBtnCSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptLeftBtn_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptLeftBtn_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptLeftBtn_new");
+	}
+
+	.pptConrolBoardGroundCSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptBtnBGround");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptBtnBGround");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptBtnBGround");
+	}
+		
+	.pptImportContralBtn_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="importControlBtn_0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="importControlBtn_0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="importControlBtn_0");
+	}
+
+
+	.pptImportContralBtn_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="importControlBtn_1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="importControlBtn_1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="importControlBtn_1");
+	}
+
+	.pptImportVideoBtn_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportVideoBtn_1_CSS_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportVideoBtn_1_CSS_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportVideoBtn_1_CSS_new");
+	}
+
+	.pptImportVideoBtn_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportVideoBtn_0_CSS_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportVideoBtn_0_CSS_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportVideoBtn_0_CSS_new");
+	}
+
+	.pptImportPptBtn_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportPptBtn_1_CSS_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportPptBtn_1_CSS_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportPptBtn_1_CSS_new");
+	}
+
+	.pptImportPptBtn_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportPptBtn_0_CSS_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportPptBtn_0_CSS_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportPptBtn_0_CSS_new");
+	}
+
+	.pptImportLibraryBtn_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportLibraryBtn_1_CSS_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportLibraryBtn_1_CSS_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportLibraryBtn_1_CSS_new");
+	}
+
+	.pptImportLibraryBtn_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportLibraryBtn_0_CSS_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportLibraryBtn_0_CSS_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportLibraryBtn_0_CSS_new");
+	}
+
+	.pptImportImageBtn_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportImageBtn_1_CSS_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportImageBtn_1_CSS_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportImageBtn_1_CSS_new");
+	}
+
+
+	.pptImportImageBtn_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportImageBtn_0_CSS_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportImageBtn_0_CSS_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportImageBtn_0_CSS_new");
+	}
+	
+	.pptImportFlashBtn_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportFlashBtn_1_CSS_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportFlashBtn_1_CSS_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportFlashBtn_1_CSS_new");
+	}
+
+	.pptImportFlashBtn_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportFlashBtn_0_CSS_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportFlashBtn_0_CSS_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportFlashBtn_0_CSS_new");
+	}
+
+	.pptImportIspringBtn_1_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportIspringBtn_1_CSS_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportIspringBtn_1_CSS_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportIspringBtn_1_CSS_new");
+	}
+	
+	.pptImportIspringBtn_0_CSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportIspringBtn_0_CSS_new");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportIspringBtn_0_CSS_new");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="pptImportIspringBtn_0_CSS_new");
+	}
+
+	.mainDrawBoardCSS{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="mainDrawBoard");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="mainDrawBoard");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="mainDrawBoard");
+	}
+
+	.zoom1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="zoom1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="zoom1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="zoom1");
+	}
+
+	.zoom0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="zoom0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="zoom0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="zoom0");
+	}
+
+	.showClose1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="showClose1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="showClose1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="showClose1");
+	}
+
+	.showClose0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="showClose0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="showClose0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="showClose0");
+	}
+
+	.rotate1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="rotate1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="rotate1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="rotate1");
+	}
+
+	.rotate0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="rotate0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="rotate0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="rotate0");
+	}
+
+	.copy1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="copy1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="copy1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="copy1");
+	}
+
+	.copy0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="copy0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="copy0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="copy0");
+	}
+
+	.allClear1{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="allClear1");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="allClear1");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="allClear1");
+	}
+
+	.allClear0{
+		
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="allClear0");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="allClear0");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="allClear0");
+	}
+
+
+
+
+
+
+
+	.drawBoardGroundCSS{
+		/*
+		up-skin:Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="drawBagroundBoard");
+		over-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="drawBagroundBoard");
+		down-skin: Embed(source='assets/Drawboard/DrawingApp.swf' , symbol="drawBagroundBoard");
+		*/
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

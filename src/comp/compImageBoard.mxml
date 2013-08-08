@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:comp="comp.*" 
+		 xmlns:com="com.*" 
+		 width="1360" height="768" backgroundColor="#EBCA81"  creationComplete="init()">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import com.*;
+			
+			import mx.controls.Image;
+			import mx.core.UIComponent;
+			
+			private var boardNew:boardMainClass;
+			
+			/**這個頁面有沒有打開TILE的設定值**/
+			public var isImageTileUse:Boolean = false;
+			
+			/**這個畫面有沒有打開libraryTile的設定值**/
+			public var isLibraryTileUse:Boolean = false;
+			
+			private function init():void
+			{
+				/**由於指定背景樣式 所以在這邊先放一張圖片當作背景**/
+				var backGround:Image = new Image();
+				backGround.source = pathConst.BACKGROUN_IMAGE_PATH;
+				this.addChild( backGround );
+				
+				//實作畫板
+				boardNew = new boardMainClass(1290,728);
+				GameData.allBoardCollection.push( boardNew );
+				boardNew.parentName = this.name;
+				boardNew.parentType = "imageBaord";
+				
+				boardNew.parentName = this.name;
+				var e:UIComponent = new UIComponent();
+				e.addChild( boardNew );
+				this.addChild( e );
+			}
+			
+			/**把自己的board傳出去**/
+			public function getBaordInstance():boardMainClass
+			{
+				return boardNew;
+			}
+			
+			/**在main 點下圖片 在這邊進行下載和放置背景**/
+			public function setBackGround(loadPath:String):void
+			{
+				this.boardNew.backGroundLoader( loadPath );
+			}
+			
+			/**設定layer層的上下**/
+			public function setActiveLayer(firstActiveLayerName:String):void
+			{
+				this.boardNew.activeLayer( firstActiveLayerName );
+			}
+			
+			/**回到最初的activeLayer階層模式**/
+			public function resetActiveLayer():void
+			{
+				this.boardNew.resetActiveLayer();
+			}
+			
+			private function onCloseBtnClick(ev:Event):void
+			{
+				trace("b");
+			}
+			/*
+			private function image_resize():void 
+			{
+				var w:Number = 1280;
+				var h:Number = 724;
+				var cornerRadius:uint = 60;
+				roundedMask.graphics.clear();
+				roundedMask.graphics.beginFill(0xFF0000);
+				roundedMask.graphics.drawRect(0 , 0 , w , h );
+				roundedMask.graphics.endFill();
+				this.mask = roundedMask;
+			}
+			*/
+			
+			/*
+			private function showTile(ev:Event):void
+			{
+				if ( !tileShow.visible )
+				{
+					tileShow.visible = true;
+				}
+				else
+				{
+					tileShow.visible = false;
+				}
+			}
+			*/
+		]]>
+	</fx:Script>
+</mx:Canvas>

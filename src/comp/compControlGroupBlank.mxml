@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="101" verticalGap="0">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<mx:HBox paddingTop="5" paddingBottom="5" width="100%" horizontalAlign="center" verticalAlign="middle">
+		<mx:Button width="59" height="1" label="" visible="true"  styleName="BarBtnCSS" />
+	</mx:HBox>
+	<mx:HBox width="100%" height="30" horizontalAlign="center" verticalAlign="middle" horizontalGap="0">
+		<mx:Button label="" width="29" height="29" name="zoom" id="zoom"  styleName="zoom0" visible="false"/>
+		<mx:Button label="" width="29" height="29" name="copy" id="copy" styleName="copy0" visible="false"/>
+	</mx:HBox>
+	
+	<mx:HBox width="100%" height="30" horizontalAlign="center" verticalAlign="middle" horizontalGap="0">
+		<mx:Button label="" width="29" height="29" name="rotate" id="rotate" styleName="rotate0" visible="false"/>
+		<mx:Button label="" width="29" height="29" name="showClose" id="showClose" styleName="showClose0" visible="false"/>
+	</mx:HBox>
+	
+	<mx:HBox width="100%" height="30" horizontalAlign="center" verticalAlign="middle" horizontalGap="0">
+		<mx:Button label="" width="29" height="29" name="allClear" id="allClear" styleName="allClear0" visible="false"/>
+		<mx:Button label="" width="29" height="29" visible="false" />
+	</mx:HBox>
+</mx:VBox>

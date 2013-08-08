@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="101" verticalGap="0">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			/**每個按鈕按下發出的事件**/
+			
+			private function onControlZoom():void
+			{
+				/**判斷是否有點下 如果已經點下 則取消所有按鈕**/
+				if( this.zoom.styleName == "zoom1" )
+				{
+					onRemoveAllControlBarActive();
+				}
+				else
+				{
+					var e:Event = new Event("onControlZoom",true,true);
+					this.dispatchEvent( e );
+					setAllCssClsar();
+					this.zoom.styleName = "zoom1";
+				}
+			}
+			
+			private function onControlRotate():void
+			{
+				if( this.rotate.styleName == "rotate1" )
+				{
+					onRemoveAllControlBarActive();
+				}
+				else
+				{
+					var e:Event = new Event("onControlRotate",true,true);
+					this.dispatchEvent( e );
+					setAllCssClsar();
+					this.rotate.styleName = "rotate1";
+				}
+			}
+			
+			public function onColtrolCopy():void
+			{
+				if( this.copy.styleName == "copy1" )
+				{
+					onRemoveAllControlBarActive();
+				}
+				else
+				{
+					var e:Event = new Event("onColtrolCopy",true,true);
+					this.dispatchEvent( e );
+					setAllCssClsar();
+					this.copy.styleName = "copy1";
+				}
+			}
+			
+			private function onColtrolClearAll():void
+			{
+				var e:Event = new Event("onColtrolClearAll",true,true);
+				this.dispatchEvent( e );
+			}
+			
+			private function onControlOpenCloseBtn():void
+			{
+				if( this.showClose.styleName == "showClose1" )
+				{
+					onRemoveAllControlBarActive();
+				}
+				else
+				{
+					var e:Event = new Event("onControlOpenCloseBtn",true,true);
+					this.dispatchEvent( e );
+					setAllCssClsar();
+					this.showClose.styleName = "showClose1";
+				}
+			}
+			
+			/**如果該按鈕已經被點下 就把畫面上所有的功能都取消掉**/
+			private function onRemoveAllControlBarActive():void
+			{
+				var e:Event = new Event("onRemoveAllControlBarActive",true,true);
+				this.dispatchEvent( e );
+			}
+			
+			/**確認**/
+			
+			/**設定點下的按鈕css**/
+			public function setClickBtnCss():void
+			{
+				
+			}
+			
+			/**按鈕全部css反白**/
+			public function setAllCssClsar():void
+			{
+				this.zoom.styleName = "zoom0";
+				this.copy.styleName = "copy0";
+				this.rotate.styleName = "rotate0";
+				this.showClose.styleName = "showClose0";
+				this.allClear.styleName = "allClear0";
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<mx:HBox paddingTop="5" paddingBottom="5" width="100%" horizontalAlign="center" verticalAlign="middle">
+		<mx:Button width="59" height="1" label="" visible="true"  styleName="BarBtnCSS" />
+	</mx:HBox>
+	<mx:HBox width="100%" height="30" horizontalAlign="center" verticalAlign="middle" horizontalGap="0">
+		<mx:Button label="" width="29" height="29" name="zoom" id="zoom" click="onControlZoom()"  styleName="zoom0" />
+		<mx:Button label="" width="29" height="29" name="copy" id="copy" click="onColtrolCopy()" styleName="copy0" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" height="30" horizontalAlign="center" verticalAlign="middle" horizontalGap="0">
+		<mx:Button label="" width="29" height="29" name="rotate" id="rotate" click="onControlRotate()" styleName="rotate0" />
+		<mx:Button label="" width="29" height="29" name="showClose" id="showClose" click="onControlOpenCloseBtn()" styleName="showClose0" />
+	</mx:HBox>
+	
+	<mx:HBox width="100%" height="30" horizontalAlign="center" verticalAlign="middle" horizontalGap="0">
+		<mx:Button label="" width="29" height="29" name="allClear" id="allClear" click="onColtrolClearAll()" styleName="allClear0" />
+		<mx:Button label="" width="29" height="29" visible="false" />
+	</mx:HBox>
+</mx:VBox>
